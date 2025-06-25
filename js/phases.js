@@ -21,7 +21,7 @@ Attack: {
 			height: 48,
 			width: 48,
 			angle: 0,
-			sprite: sprites.souls[0],
+			sprite: sprites.Souls[0],
 			speed: 250,
 			update(dt) {
 				// Animate Soul Movement
