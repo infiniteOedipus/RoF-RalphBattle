@@ -10,6 +10,7 @@ window.addEventListener("keyup", e => {
 });
 //Initialize
 function initialize() {
+	console.log("gameLoop initializing")
 	changeGameState(gameState.Attack)
 	requestAnimationFrame(gameLoop)
 }
