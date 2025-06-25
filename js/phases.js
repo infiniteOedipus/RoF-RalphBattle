@@ -4,6 +4,7 @@ let combatRound = 0;
 let activeObjects = []
 
 function changeGameState(newState) {
+	console.log("GameState Attempting to Change")
 	if (currentGameState?.end) currentGameState.end();
 	currentGameState = newState;
 	currentGameState.init();
@@ -14,6 +15,7 @@ const gameState = {
 Attack: {
     init() {
       // create Objects
+	    	console.log("Attack State Initialized")
 		let Soul = {
 			x: 325,
 			y: 225,
