@@ -7,7 +7,7 @@ function changeGameState(newState) {
 	if (currentGameState?.end) currentGameState.end();
 	currentGameState = newState;
 	currentGameState.init();
-	activeObjects = activeObjects.filter(obj => obj.phase === newPhase);
+	//activeObjects = activeObjects.filter(obj => obj.phase === newPhase);
 }
 
 const gameState = {
@@ -21,7 +21,7 @@ Attack: {
 			height: 48,
 			width: 48,
 			angle: 0,
-			sprite: sprites.hearts[0],
+			sprite: sprites.souls[0],
 			speed: 250,
 			update(dt) {
 				// Animate Soul Movement
