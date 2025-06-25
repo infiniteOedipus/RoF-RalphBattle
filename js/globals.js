@@ -22,3 +22,8 @@ function initialize() {
 	changeGameState(gameState.Attack)
 	requestAnimationFrame(gameLoop)
 }
+
+//generic functions
+function getSprite(group, name) {
+  return assets[group].find(sprite => sprite.name === name);
+}
