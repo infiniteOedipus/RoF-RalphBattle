@@ -1,0 +1,64 @@
+//Loading sprites
+    const loadImages = {
+    Souls: [{
+            name: "ZeaqueSoul",
+            src: "https://file.garden/Z49oqnj5okOfzefL/CSS/RoFHeart1.png"
+        }, {
+            name: "VesstaSoul",
+            src: "https://file.garden/Z49oqnj5okOfzefL/CSS/RoFHeart2.png"
+        }, {
+            name: "PhenixSoul",
+            src: "https://file.garden/Z49oqnj5okOfzefL/CSS/RoFHeart3.png"
+        }, {
+            name: "MarkorSoul",
+            src: "https://file.garden/Z49oqnj5okOfzefL/CSS/RoFHeart4.png"
+        }
+    ]
+}
+//Loading audio
+const loadAudio = {
+    music: [{
+            name: "TierList_song",
+            src: "https://file.garden/Z6AuUPzHKDCUgCsZ/RoFGames/Vessta_Tier_List/TierList_song.mp3"
+        }
+    ]
+}
+
+// Load Assets, then start initialize
+
+let assets = {}
+let loadPromises = []
+
+function checkImgLoad(imgSrc) { // Load image Promise
+    return new Promise((resolve, reject) => {
+        
+        imgSrc.onload = () => {
+            resolve(imgSrc)
+        }
+
+        imgSrc.onerror = () => {
+            reject(new Error(`Failed to load ${imgSrc.src}`))
+        }
+    })
+}
+
+for (const [groupName, groupArray] of Object.entries(loadImages)) { //generates promises for images
+    assets[groupName] = []
+    for (const sprite of groupArray) {
+        const img = new Image();
+		    img.crossOrigin = "anonymous"
+        img.src = sprite.src
+        img.name = sprite.name
+        assets[groupName].push(img)
+        loadPromises.push(checkImgLoad(img))
+    }
+}
+
+Promise.all(loadPromises) //requests promises, then initializes
+.then(() => {
+    console.log('All assets loaded:', assets)
+    initialize()
+})
+.catch(() => {
+    console.error("asset loading error")
+})
