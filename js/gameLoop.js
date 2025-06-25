@@ -8,7 +8,11 @@ window.addEventListener("keydown", e => {
 window.addEventListener("keyup", e => {
         keys[e.key] = false;
 });
-
+//Initialize
+function initialize() {
+	changeGameState(Attack)
+	requestAnimationFrame(gameLoop)
+}
 
 //Update
 function update(deltaTime) {
