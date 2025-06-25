@@ -13,7 +13,12 @@
             name: "MarkorSoul",
             src: "https://file.garden/Z49oqnj5okOfzefL/CSS/RoFHeart4.png"
         }
-    ]
+    ],
+	Bullets: [{
+		name: "bul_ralph_brick",
+		src: "https://file.garden/Z49oqnj5okOfzefL/Battle/bul_ralph_brick.png"
+	}
+		]
 }
 //Loading audio
 const loadAudio = {
