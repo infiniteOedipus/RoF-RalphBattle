@@ -27,3 +27,9 @@ function initialize() {
 function getSprite(group, name) {
   return assets[group].find(sprite => sprite.name === name);
 }
+
+function interval(time, dt, interval){
+	if((time%interval) + dt != (time + dt)%interval){
+		return true
+	}
+}
