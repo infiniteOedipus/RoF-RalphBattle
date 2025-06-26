@@ -1,6 +1,7 @@
 //Initiating Game States
 let currentGameState = null;
 let combatRound = 0;
+let rndTimer = null;
 let activeObjects = []
 
 function changeGameState(newState) {
@@ -49,6 +50,7 @@ Attack: {
     },
 	update(dt) {
 		bulletmap0(dt)
+		rndTimer += dt
 	},
     end() {
 		// Clean up if needed
@@ -57,7 +59,6 @@ Attack: {
 }    
 }
 
-let rndTimer = null
 //sketching out attack phase
 function bulletmap0(dt) {
 	if(interval(rndTimer, dt, 1.3)) { //every 1.3 seconds
@@ -65,7 +66,6 @@ function bulletmap0(dt) {
 			activeObjects.push(new bul_ralph_brick(Math.random()*2*Math.PI, 6, Math.random() * 300 + 175, Math.random() * 50 + 50))
 		}
 	}
-	rndTimer += dt
 }
 function bul_ralph_brick(direction, speed, initx, inity) {
 	this.sprite = getSprite("Bullets", "bul_ralph_brick")
