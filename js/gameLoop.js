@@ -3,6 +3,7 @@
 //Update
 function update(deltaTime) {
 	activeObjects.forEach(obj => obj.update?.(deltaTime));
+	currentGameState?.update?.(dt);
 	activeObjects = activeObjects.filter(obj => !obj.setForRemoval)
 }
 	
