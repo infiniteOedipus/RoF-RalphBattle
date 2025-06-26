@@ -17,10 +17,12 @@ function render(dt) {
 		        game.translate(obj.x, obj.y)
 			game.rotate(obj.angle || 0)
                         game.scale(obj.scalex ?? 1, obj.scaley ?? 1)
+			game.globalAlpha = (obj.opacity ?? 1)
                         //for (const fx of obj.effects ?? []) {
                         //        applyVisualEffect(fx, obj, dt);
                         //}
                         game.drawImage(obj.sprite, -obj.width / 2, -obj.height / 2, obj.width, obj.height)
+			game.globalAlpha = 1
                         game.restore()
                 })
 }
