@@ -21,7 +21,7 @@ Attack: {
 			height: 48,
 			width: 48,
 			angle: 0,
-			sprite: sprites.hearts[0],
+			sprite: getSprite("Souls", "ZeaqueSoul"),
 			speed: 250,
 			update(dt) {
 				// Animate Soul Movement
