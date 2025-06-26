@@ -92,9 +92,3 @@ function bullet_fadeout(bullet, condition, dt){
 	if (condition) bullet.opacity -= dt / 0.5
 	if (bullet.opacity <= 0) bullet.setForRemoval = true
 }
-
-function interval(time, dt, interval){
-	if((time%interval) + dt != (time + dt)%interval){
-		return true
-	}
-}
