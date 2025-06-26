@@ -4,7 +4,6 @@ let combatRound = 0;
 let activeObjects = []
 
 function changeGameState(newState) {
-	console.log("GameState Attempting to Change")
 	if (currentGameState?.end) currentGameState.end();
 	currentGameState = newState;
 	currentGameState.init();
@@ -15,7 +14,6 @@ const gameState = {
 Attack: {
     init() {
       // create Objects
-	    	console.log("Attack State Initialized")
 		let Soul = {
 			x: 325,
 			y: 225,
@@ -23,7 +21,7 @@ Attack: {
 			height: 48,
 			width: 48,
 			angle: 0,
-			sprite: getSprite("Souls", "ZeaqueSoul"),
+			sprite: sprites.hearts[0],
 			speed: 250,
 			update(dt) {
 				// Animate Soul Movement
@@ -47,10 +45,56 @@ Attack: {
 			}
 		};
 		activeObjects.push(Soul)
+		rndTimer = 0
     },
+	update(dt) {
+		bulletmap0(dt)
+	}
     end() {
 		// Clean up if needed
 		combatRound++
     }
 }    
+}
+
+let rndTimer = null
+//sketching out attack phase
+function bulletmap0(dt) {
+	if(interval(rndTimer, dt, 1.3)) { //every 1.3 seconds
+		for(let i = 0; i < 5; i++){
+			activeObjects.push(new bul_ralph_brick(Math.random()*2*Math.PI, 6, Math.random() * 300 + 175, Math.random() * 50 + 50))
+		}
+	}
+	rndTimer += dt
+}
+function bul_ralph_brick(direction, speed, initx, inity) {
+	this.sprite = getSprite("Bullets", "bul_ralph_brick")
+	this.x = initx
+	this.y = inity
+	this.scalex = 1
+	this.opacity = 1
+	this.setForRemoval = false
+	this.dx = speed * Math.cos(direction)
+	this.dy = speed * Math.sin(direction)
+	this.bulTimer = 0 + Math.random()*0.2
+	this.update = (dt) => {
+		this.x += this.dx * dt
+		this.y += this.dy * dt
+		this.dy += 3*dt
+		if(interval(this.bulTimer, dt, 0.2)){
+			this.scalex *= -1
+		}
+		bullet_fadeout(this, this.y > 400, dt)
+		this.bulTimer += dt
+	}
+}
+function bullet_fadeout(bullet, condition, dt){
+	if (condition) bullet.opacity -= dt / 0.5
+	if (bullet.opacity <= 0) bullet.setForRemoval = true
+}
+
+function interval(time, dt, interval){
+	if((time%interval) + dt != (time + dt)%interval){
+		return true
+	}
 }
