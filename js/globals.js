@@ -29,7 +29,5 @@ function getSprite(group, name) {
 }
 
 function interval(time, dt, interval){
-	if((time%interval) + dt != (time + dt)%interval){
-		return true
-	}
+	return Math.floor((time + dt) / interval) > Math.floor(time / interval)
 }
