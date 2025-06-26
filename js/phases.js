@@ -64,8 +64,8 @@ function bulletmap0(dt) {
 	if(interval(rndTimer, dt, 1.3)) { //every 1.3 seconds
 		const pickx = Math.random() * 300 + 175
 		const picky = Math.random() * 50 + 50
-		for(let i = 0; i < 4; i++){
-			activeObjects.push(new bul_ralph_brick(Math.random()*2*Math.PI, 30, pickx, picky))
+		for(let i = 0; i < 3; i++){
+			activeObjects.push(new bul_ralph_brick(Math.random()*2*Math.PI, 60, pickx, picky))
 		}
 	}
 }
@@ -80,12 +80,12 @@ function bul_ralph_brick(direction, speed, initx, inity) {
 	this.setForRemoval = false
 	this.dx = speed * Math.cos(direction)
 	this.dy = speed * Math.sin(direction)
-	this.bulTimer = 0 + Math.random()*0.2
+	this.bulTimer = 0 + Math.random()*0.4
 	this.update = (dt) => {
 		this.x += this.dx * dt
 		this.y += this.dy * dt
-		this.dy += 30*dt
-		if(interval(this.bulTimer, dt, 0.6)){
+		this.dy += 45*dt
+		if(interval(this.bulTimer, dt, 0.4)){
 			this.scalex *= -1
 		}
 		bullet_fadeout(this, this.y > 400, dt)
