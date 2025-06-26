@@ -61,11 +61,16 @@ Attack: {
 
 //sketching out attack phase
 function bulletmap0(dt) {
-	if(interval(rndTimer, dt, 1.3)) { //every 1.3 seconds
+	if(interval(rndTimer, dt, 0.9)) { //every 0.9 seconds
 		const pickx = Math.random() * 300 + 175
 		const picky = Math.random() * 50 + 50
 		for(let i = 0; i < 3; i++){
-			activeObjects.push(new bul_ralph_brick(Math.random()*2*Math.PI, 90, pickx, picky))
+			activeObjects.push(new bul_ralph_brick(
+				( Math.random() * 2 * Math.PI / 4 ) + ( 5 * Math.PI / 4 ), 	//direction
+				120, 								//speed
+				pickx, 								//initx
+				picky								//inity
+			))
 		}
 	}
 }
@@ -84,7 +89,7 @@ function bul_ralph_brick(direction, speed, initx, inity) {
 	this.update = (dt) => {
 		this.x += this.dx * dt
 		this.y += this.dy * dt
-		this.dy += 120*dt
+		this.dy += 210*dt
 		if(interval(this.bulTimer, dt, 0.4)){
 			this.scalex *= -1
 		}
