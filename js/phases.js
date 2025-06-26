@@ -71,6 +71,8 @@ function bul_ralph_brick(direction, speed, initx, inity) {
 	this.sprite = getSprite("Bullets", "bul_ralph_brick")
 	this.x = initx
 	this.y = inity
+	this.width = this.sprite.width
+	this.height = this.sprite.height
 	this.scalex = 1
 	this.opacity = 1
 	this.setForRemoval = false
