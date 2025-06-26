@@ -49,7 +49,7 @@ Attack: {
     },
 	update(dt) {
 		bulletmap0(dt)
-	}
+	},
     end() {
 		// Clean up if needed
 		combatRound++
