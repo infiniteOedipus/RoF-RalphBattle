@@ -65,7 +65,7 @@ function bulletmap0(dt) {
 		const pickx = Math.random() * 300 + 175
 		const picky = Math.random() * 50 + 50
 		for(let i = 0; i < 3; i++){
-			activeObjects.push(new bul_ralph_brick(Math.random()*2*Math.PI, 60, pickx, picky))
+			activeObjects.push(new bul_ralph_brick(Math.random()*2*Math.PI, 90, pickx, picky))
 		}
 	}
 }
@@ -84,7 +84,7 @@ function bul_ralph_brick(direction, speed, initx, inity) {
 	this.update = (dt) => {
 		this.x += this.dx * dt
 		this.y += this.dy * dt
-		this.dy += 45*dt
+		this.dy += 120*dt
 		if(interval(this.bulTimer, dt, 0.4)){
 			this.scalex *= -1
 		}
