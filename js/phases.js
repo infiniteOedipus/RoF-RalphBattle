@@ -62,8 +62,10 @@ Attack: {
 //sketching out attack phase
 function bulletmap0(dt) {
 	if(interval(rndTimer, dt, 1.3)) { //every 1.3 seconds
-		for(let i = 0; i < 5; i++){
-			activeObjects.push(new bul_ralph_brick(Math.random()*2*Math.PI, 6, Math.random() * 300 + 175, Math.random() * 50 + 50))
+		const pickx = Math.random() * 300 + 175
+		const picky = Math.random() * 50 + 50
+		for(let i = 0; i < 4; i++){
+			activeObjects.push(new bul_ralph_brick(Math.random()*2*Math.PI, 30, pickx, picky))
 		}
 	}
 }
@@ -71,8 +73,8 @@ function bul_ralph_brick(direction, speed, initx, inity) {
 	this.sprite = getSprite("Bullets", "bul_ralph_brick")
 	this.x = initx
 	this.y = inity
-	this.width = this.sprite.width
-	this.height = this.sprite.height
+	this.width = this.sprite.width * 2
+	this.height = this.sprite.height * 2
 	this.scalex = 1
 	this.opacity = 1
 	this.setForRemoval = false
@@ -82,8 +84,8 @@ function bul_ralph_brick(direction, speed, initx, inity) {
 	this.update = (dt) => {
 		this.x += this.dx * dt
 		this.y += this.dy * dt
-		this.dy += 3*dt
-		if(interval(this.bulTimer, dt, 0.2)){
+		this.dy += 30*dt
+		if(interval(this.bulTimer, dt, 0.6)){
 			this.scalex *= -1
 		}
 		bullet_fadeout(this, this.y > 400, dt)
