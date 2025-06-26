@@ -3,6 +3,7 @@
 //Update
 function update(deltaTime) {
 	activeObjects.forEach(obj => obj.update?.(deltaTime));
+	activeObjects = activeObjects.filter(obj => !obj.setForRemoval)
 }
 	
 //Render
