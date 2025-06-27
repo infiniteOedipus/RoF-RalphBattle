@@ -32,3 +32,5 @@ function bul_ralph_brick(direction, speed, initx, inity) {
 	}
 }
 
+//mainly just doing this to test if Github is working
+//test 2
