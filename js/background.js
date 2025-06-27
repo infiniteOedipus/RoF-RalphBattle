@@ -7,7 +7,7 @@ let bgScroll = null
 onInit(() => {
     bgScroll = {
         xPos   : 0,
-        sprite : getSprite("bg", "bg_wall_scroll")
+        get sprite() {return getSprite("bg", "bg_wall_scroll")}
     }
 })
 
