@@ -32,7 +32,7 @@
             src: "https://file.garden/Z49oqnj5okOfzefL/pages/0014.png",
         }, {
             name: "bg_floor_glow_FX",
-            src: "https://file.garden/Z49oqnj5okOfzefL/Battle/bg_floor_glow_FX",
+            src: "https://file.garden/Z49oqnj5okOfzefL/Battle/bg_floor_glow_FX.png",
         }
     ]
 }
