@@ -7,13 +7,13 @@ let bgScroll = null
 onInit(() => {
     bgScroll = {
         xPos   : 0,
-        get sprite() {return getSprite("bg", "bg_wall_scroll")}
+        get sprite() {return getSprite("BG", "bg_wall_scroll")}
     }
 })
 
 function renderBG(dt) {
     renderScroll(bgScroll, dt)
-    game.drawImage(getSprite("bg", "bg_floor"))
+    game.drawImage(getSprite("BG", "bg_floor"))
     //renderGlow(getSprite("bg", "bg_floor_glow_FX"), dt)
 }
 
