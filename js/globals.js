@@ -24,10 +24,11 @@ function onInit(fn) {
 }
 
 function initialize() {
-	console.log("gameLoop initializing")
+	console.log("running initialize events")
 	for(const fn of initListeners) {
 		fn()
 	}
+	console.log("gameLoop initializing")
 	changeGameState(gameState.Attack)
 	requestAnimationFrame(gameLoop)
 }
