@@ -8,7 +8,7 @@ function bullet_fadeout(bullet, condition, dt){
 //bullets
 
 function bul_ralph_brick(direction, speed, initx, inity) {
-	this.sprite = getSprite("Bullets", "bul_ralph_brick")
+	this.sprite = getSprite("bullets", "bul_ralph_brick")
 	this.x = initx
 	this.y = inity
 	this.width = this.sprite.width * 2

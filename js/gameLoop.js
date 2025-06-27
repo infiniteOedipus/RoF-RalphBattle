@@ -24,7 +24,7 @@ function render(dt) {
                         //for (const fx of obj.effects ?? []) {
                         //        applyVisualEffect(fx, obj, dt);
                         //}
-                        const drawSprite = obj.sprite ?? getSprite("PH", "PH")
+                        const drawSprite = obj.sprite ?? getSprite("ph", "PH")
                         const w = obj.width ?? drawSprite?.width ?? 32;
                         const h = obj.height ?? drawSprite?.height ?? 32;
 

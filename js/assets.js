@@ -1,30 +1,30 @@
 //Loading sprites
     const loadImages = {
-    PH: [{
+    ph: [{
             name: "PH",
             src: "https://file.garden/Z49oqnj5okOfzefL/Battle/PH.png"
         } 
     ],
-    Souls: [{
-            name: "ZeaqueSoul",
+    souls: [{
+            name: "soul_zeaque",
             src: "https://file.garden/Z49oqnj5okOfzefL/CSS/RoFHeart1.png"
         }, {
-            name: "VesstaSoul",
+            name: "soul_vessta",
             src: "https://file.garden/Z49oqnj5okOfzefL/CSS/RoFHeart2.png"
         }, {
-            name: "PhenixSoul",
+            name: "soul_phenix",
             src: "https://file.garden/Z49oqnj5okOfzefL/CSS/RoFHeart3.png"
         }, {
-            name: "MarkorSoul",
+            name: "soul_markor",
             src: "https://file.garden/Z49oqnj5okOfzefL/CSS/RoFHeart4.png"
         }
     ],
-	Bullets: [{
+	bullets: [{
 		    name: "bul_ralph_brick",
 		    src: "https://file.garden/Z49oqnj5okOfzefL/Battle/bul_ralph_brick.png"
 	    }
 	],
-    BG: [{
+    bg: [{
             name: "bg_floor",
             src: "https://file.garden/Z49oqnj5okOfzefL/Battle/bg_floor_PH.png",
         }, {
