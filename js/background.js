@@ -1,7 +1,7 @@
 
-getSprite("bg", "bg_floor")
-getSprite("bg", "bg_wall_scroll")
-getSprite("bg", "bg_floor_glow_FX")
+//getSprite("bg", "bg_floor")
+//getSprite("bg", "bg_wall_scroll")
+//getSprite("bg", "bg_floor_glow_FX")
 
 let bgScroll = null
 onInit(() => {
