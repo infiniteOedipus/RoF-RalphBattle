@@ -7,7 +7,7 @@ game.mozImageSmoothingEnabled    = false;
 game.msImageSmoothingEnabled     = false;
 
 //Game Specific variables to be adjusted each game, update for each project
-const battleParticipants = [zeaque];
+const battleParticipants = ["zeaque"];
 
 //Button Inputs
 const keys = {};
