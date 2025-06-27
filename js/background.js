@@ -13,7 +13,7 @@ onInit(() => {
 
 function renderBG(dt) {
     renderScroll(bgScroll, dt)
-    game.drawImage(getSprite("BG", "bg_floor"))
+    game.drawImage(getSprite("BG", "bg_floor"), 0, 0)
     //renderGlow(getSprite("bg", "bg_floor_glow_FX"), dt)
 }
 
