@@ -1,5 +1,10 @@
 //Loading sprites
     const loadImages = {
+    PH: [{
+            name: "PH",
+            src: "https://file.garden/Z49oqnj5okOfzefL/Battle/PH.png"
+        } 
+    ],
     Souls: [{
             name: "ZeaqueSoul",
             src: "https://file.garden/Z49oqnj5okOfzefL/CSS/RoFHeart1.png"
@@ -15,10 +20,21 @@
         }
     ],
 	Bullets: [{
-		name: "bul_ralph_brick",
-		src: "https://file.garden/Z49oqnj5okOfzefL/Battle/bul_ralph_brick.png"
-	}
-		]
+		    name: "bul_ralph_brick",
+		    src: "https://file.garden/Z49oqnj5okOfzefL/Battle/bul_ralph_brick.png"
+	    }
+	],
+    BG: [{
+            name: "bg_floor",
+            src: "https://file.garden/Z49oqnj5okOfzefL/Battle/bg_floor_PH.png",
+        }, {
+            name: "bg_wall_scroll",
+            src: "https://file.garden/Z49oqnj5okOfzefL/pages/0014.png",
+        }, {
+            name: "bg_floor_glow_FX",
+            src: "https://file.garden/Z49oqnj5okOfzefL/Battle/bg_floor_glow_FX",
+        }
+    ]
 }
 //Loading audio
 const loadAudio = {
@@ -67,3 +83,4 @@ Promise.all(loadPromises) //requests promises, then initializes
 .catch(() => {
     console.error("asset loading error")
 })
+

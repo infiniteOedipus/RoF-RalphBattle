@@ -17,8 +17,17 @@ window.addEventListener("keyup", e => {
         keys[e.key] = false;
 });
 //Initialize
+const initListeners = []
+
+function onInit(fn) {
+	initListeners.push(fn)
+}
+
 function initialize() {
 	console.log("gameLoop initializing")
+	for(const fn of initListeners) {
+		fn()
+	}
 	changeGameState(gameState.Attack)
 	requestAnimationFrame(gameLoop)
 }

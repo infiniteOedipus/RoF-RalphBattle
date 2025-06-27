@@ -16,15 +16,23 @@ function render(dt) {
                 .sort((a, b) => a.z - b.z)
 	        .forEach((obj) => {
 		        game.save()
-		        game.translate(obj.x, obj.y)
-			game.rotate(obj.angle || 0)
+		        game.translate(obj.x ?? 0, obj.y ?? 0)
+			game.rotate(obj.angle ?? 0)
                         game.scale(obj.scalex ?? 1, obj.scaley ?? 1)
 			game.globalAlpha = (obj.opacity ?? 1)
                         //for (const fx of obj.effects ?? []) {
                         //        applyVisualEffect(fx, obj, dt);
                         //}
-                        game.drawImage(obj.sprite, -obj.width / 2, -obj.height / 2, obj.width, obj.height)
-			game.globalAlpha = 1
+                        const drawSprite = obj.sprite ?? getSprite("PH", "PH")
+                        const w = obj.width ?? drawSprite?.width ?? 32;
+                        const h = obj.height ?? drawSprite?.height ?? 32;
+
+                        game.drawImage(drawSprite, 
+                                -w / 2, 
+                                -h / 2, 
+                                w, 
+                                h
+                        )
                         game.restore()
                 })
 }
