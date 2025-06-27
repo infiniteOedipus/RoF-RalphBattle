@@ -34,7 +34,21 @@
             name: "bg_floor_glow_FX",
             src: "https://file.garden/Z49oqnj5okOfzefL/Battle/bg_floor_glow_FX.png",
         }
-    ]
+    ],
+    UI: [{
+            name: "ui_body_zeaque_0",
+            src: "https://file.garden/Z49oqnj5okOfzefL/Battle/ui_body_zeaque_0.png"
+        }, {
+            name: "ui_body_zeaque_1",
+            src: "https://file.garden/Z49oqnj5okOfzefL/Battle/ui_body_zeaque_1.png"
+        }, {
+            name: "ui_button_zeaque_0",
+            src: "https://file.garden/Z49oqnj5okOfzefL/Battle/ui_button_zeaque_0.png"
+        }, {
+            name: "ui_button_zeaque_1",
+            src: "https://file.garden/Z49oqnj5okOfzefL/Battle/ui_button_zeaque_1.png"
+        }
+]
 }
 //Loading audio
 const loadAudio = {

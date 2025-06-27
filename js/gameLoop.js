@@ -27,15 +27,23 @@ function render(dt) {
                         const drawSprite = obj.sprite ?? getSprite("ph", "PH")
                         const w = obj.width ?? drawSprite?.width ?? 32;
                         const h = obj.height ?? drawSprite?.height ?? 32;
-
-                        game.drawImage(drawSprite, 
-                                -w / 2, 
-                                -h / 2, 
-                                w, 
-                                h
-                        )
+                        drawActiveObject(drawSprite, w, h, obj.origin)
+                        //game.drawImage(drawSprite, -w / 2, -h / 2, w, h)
                         game.restore()
                 })
+}
+
+function drawActiveObject(drawSprite, w, h, origin) {
+        switch(origin ?? "center") {
+                case "center": game.drawImage(drawSprite, -w / 2, -h / 2, w, h)
+                        break
+                case "bottomLeft": game.drawImage(drawSprite, 0, -h, w, h)
+                        break
+                case "topLeft": game.drawImage(drawSprite, 0, 0, w, h)
+                        break
+                default: console.warn(`Unknown origin "${origin}", defaulting to center.`);
+                        game.drawImage(drawSprite, -w / 2, -h / 2, w, h)
+        }
 }
 
 //game loop
