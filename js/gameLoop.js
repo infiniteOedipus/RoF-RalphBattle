@@ -10,7 +10,8 @@ function update(dt) {
 //Render
 function render(dt) {
 	game.fillStyle = "#000"; // black
-	game.fillRect(0, 0, gameWindow.width, gameWindow.height);		
+	game.fillRect(0, 0, gameWindow.width, gameWindow.height);
+        renderBG(dt);
 	activeObjects
                 .slice()
                 .sort((a, b) => a.z - b.z)
