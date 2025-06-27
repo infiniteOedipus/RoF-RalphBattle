@@ -25,7 +25,7 @@ function renderScroll(bg, dt){
             srcX, 0, 1, bg.sprite.height,    //source x, y, width, height
             x, y, 1, bg.sprite.height);                                          //destinition x, y, width, height
     }
-    bg.xPos = (bg.xPos + dt * 1.5) % bg.sprite.width
+    bg.xPos = (bg.xPos + dt * 200) % bg.sprite.width
 }
 
 function renderGlow(){
