@@ -28,6 +28,8 @@ function getSprite(group, name) {
   return assets[group].find(sprite => sprite.name === name);
 }
 
-function interval(time, dt, interval){
-	return Math.floor((time + dt) / interval) > Math.floor(time / interval)
+function interval(time, dt, interval, delay){
+	const d = delay ?? 0
+	if ( time > d ) return Math.floor((time - d + dt) / interval) > Math.floor((time - d) / interval)
+	return false
 }
