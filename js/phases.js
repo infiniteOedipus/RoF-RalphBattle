@@ -19,11 +19,11 @@ Attack: {
 			x: 325,
 			y: 225,
 			z: 10,
-			height: 48,
-			width: 48,
+			height: 32,
+			width: 32,
 			angle: 0,
 			sprite: getSprite("Souls", "ZeaqueSoul"),
-			speed: 250,
+			speed: 300,
 			update(dt) {
 				// Animate Soul Movement
 				let dy = 0
@@ -59,57 +59,3 @@ Attack: {
 }    
 }
 
-//sketching out attack phase
-function bulletmap0(dt) {
-	if(interval(rndTimer, dt, 1.3)) { //every 1.3 seconds
-		const pickx = Math.random() * 300 + 175
-		const picky = Math.random() * 50 + 50
-		for(let i = 0; i < 3; i++){
-			activeObjects.push(new bul_ralph_brick(
-				( Math.random() * 2 * Math.PI / 4 ) + ( 5 * Math.PI / 4 ), 	//direction
-				120, 								//speed
-				pickx, 								//initx
-				picky								//inity
-			))
-		}
-	}
-	if(interval(rndTimer, dt, 1.3, 0.3)) { //every 1.3 seconds, ofset 0.3 seconds
-		const pickx = Math.random() * 300 + 175
-		const picky = Math.random() * 50 + 50
-		for(let i = 0; i < 3; i++){
-			activeObjects.push(new bul_ralph_brick(
-				( Math.random() * 2 * Math.PI / 4 ) + ( 5 * Math.PI / 4 ), 	//direction
-				120, 								//speed
-				pickx, 								//initx
-				picky								//inity
-			))
-		}
-	}
-}
-function bul_ralph_brick(direction, speed, initx, inity) {
-	this.sprite = getSprite("Bullets", "bul_ralph_brick")
-	this.x = initx
-	this.y = inity
-	this.width = this.sprite.width * 2
-	this.height = this.sprite.height * 2
-	this.scalex = Math.random() < 0.5 ? -1 : 1
-	this.opacity = 1
-	this.setForRemoval = false
-	this.dx = speed * Math.cos(direction)
-	this.dy = speed * Math.sin(direction)
-	this.bulTimer = 0 + Math.random()*0.2
-	this.update = (dt) => {
-		this.x += this.dx * dt
-		this.y += this.dy * dt
-		this.dy += 210*dt
-		if(interval(this.bulTimer, dt, 0.4)){
-			this.scalex *= -1
-		}
-		bullet_fadeout(this, this.y > 400, dt)
-		this.bulTimer += dt
-	}
-}
-function bullet_fadeout(bullet, condition, dt){
-	if (condition) bullet.opacity -= dt / 0.5
-	if (bullet.opacity <= 0) bullet.setForRemoval = true
-}

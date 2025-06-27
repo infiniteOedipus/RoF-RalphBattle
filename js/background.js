@@ -4,10 +4,15 @@
 //getSprite("bg", "bg_floor_glow_FX")
 
 let bgScroll = null
+let bgGlow = null
 onInit(() => {
     bgScroll = {
         xPos   : 0,
         get sprite() {return getSprite("BG", "bg_wall_scroll")}
+    }
+    bgGlow = {
+        loop   : 0,
+        get sprite() {return getSprite("BG", "bg_floor_glow_FX")}
     }
 })
 
@@ -25,7 +30,7 @@ function renderScroll(bg, dt){
             srcX, 0, 1, bg.sprite.height,    //source x, y, width, height
             x, y, 1, bg.sprite.height);                                          //destinition x, y, width, height
     }
-    bg.xPos = (bg.xPos + dt * 200) % bg.sprite.width
+    bg.xPos = (bg.xPos + dt * 50) % bg.sprite.width
 }
 
 function renderGlow(){
