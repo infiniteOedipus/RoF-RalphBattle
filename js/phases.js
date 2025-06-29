@@ -7,8 +7,10 @@ let menuSelections = []
 let activeObjects = []
 
 function changeGameState(newState) {
+	console.log("changing game state to:", newState)
 	if (currentGameState?.end) currentGameState.end();
 	currentGameState = newState;
+	console.log("initializing game state:", currentGameState)
 	currentGameState.init();
 	//activeObjects = activeObjects.filter(obj => obj.phase === newPhase);
 }
@@ -29,7 +31,7 @@ Attack: {
     end() {
 		// Clean up if needed, step combat round, and change state back to Menu
 		combatRound++
-		changeGameState(Menu)
+		changeGameState(gameState.Menu)
     }
 },
 
@@ -47,7 +49,7 @@ Menu: {
 	},
 	end() {
 		//prepare for combat round and move to atack
-		changeGameState(Attack)
+		changeGameState(gameState.Attack)
 	}
 }
 }
@@ -87,7 +89,59 @@ function createSoul() {
 }
 
 function createBattleUI() {
+	console.log("Creating Battle ui")
+	let n = 0
 	battleParticipants.forEach(character => {
-		
+		let body = new battle_ui_body(character, n++)
+		activeObjects.push(body)
+		activeObjects.push(new battle_ui_button(body, 0))
+		activeObjects.push(new battle_ui_button(body, 1))
+		activeObjects.push(new battle_ui_button(body, 2))
+		activeObjects.push(new battle_ui_button(body, 3))
 	});
+}
+
+function battle_ui_body(character, n) {
+	console.log("Creating Battle ui body for", character)
+	this.character = character
+	this.slotOrder = n
+	this.uiBody = [getSprite(`ui`, `ui_body_${character}_0`), getSprite("ui", `ui_body_${character}_1`)]
+	this.isSelected = false
+	this.buttonSelected = 0
+
+	this.sprite = this.uiBody[this.isSelected ? 1 : 0]
+	this.origin = "bottomLeft"
+	this.x = n * this.sprite.width
+	this.y = gameWindow.height + this.sprite.height
+	this.update = (dt) => {
+		if (this.y > gameWindow.height) this.y -= dt * 60
+		if (this.y < gameWindow.height) this.y = gameWindow.height
+
+		if (menuSelect == this.slotOrder) this.isSelected = true
+		if (menuSelect != this.slotOrder) this.isSelected = false
+
+		this.sprite = this.uiBody[this.isSelected ? 1 : 0]
+	}
+}
+
+function battle_ui_button(body, n) {
+	console.log("Creating button", n, "for", body.character)
+	this.character = body.character
+	this.slotOrder = n
+	this.uiButton = [getSprite(`ui`, `ui_button_${this.character}_0`), getSprite("ui", `ui_button_${this.character}_1`)]
+	this.isSelected = false
+	this.buttonSelected = 0
+
+	this.sprite = this.uiButton[this.isSelected ? 1 : 0]
+	this.origin = "bottomLeft"
+	this.x = n * this.sprite.width + body.x
+	this.y = body.y
+	this.update = (dt) => {
+		this.y = body.y
+
+		if (body.buttonSelected == this.slotOrder) this.isSelected = true
+		if (body.buttonSelected != this.slotOrder) this.isSelected = false
+
+		this.sprite = this.uiButton[this.isSelected ? 1 : 0]
+	}
 }

@@ -35,7 +35,7 @@
             src: "https://file.garden/Z49oqnj5okOfzefL/Battle/bg_floor_glow_FX.png",
         }
     ],
-    UI: [{
+    ui: [{
             name: "ui_body_zeaque_0",
             src: "https://file.garden/Z49oqnj5okOfzefL/Battle/ui_body_zeaque_0.png"
         }, {

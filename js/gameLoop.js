@@ -17,7 +17,7 @@ function render(dt) {
                 .sort((a, b) => a.z - b.z)
 	        .forEach((obj) => {
 		        game.save()
-		        game.translate(obj.x ?? 0, obj.y ?? 0)
+		        game.translate(Math.floor(obj.x) ?? 0, Math.floor(obj.y) ?? 0)
 			game.rotate(obj.angle ?? 0)
                         game.scale(obj.scalex ?? 1, obj.scaley ?? 1)
 			game.globalAlpha = (obj.opacity ?? 1)
@@ -48,11 +48,21 @@ function drawActiveObject(drawSprite, w, h, origin) {
 
 //game loop
 let lastTime = performance.now();
-
+let fpsTime = lastTime
+let frameCount = 0;
+const fpsCounter = document.getElementById("fpsCounter")
 function gameLoop(currentTime = performance.now()) {
         const dt = (currentTime - lastTime) / 1000;
         lastTime = currentTime;
         update(dt);
         render(dt);
+
+  frameCount++;
+  if (currentTime - fpsTime >= 1000) {
+    fpsCounter.innerHTML = `FPS: ${frameCount}`
+    frameCount = 0;
+    fpsTime = currentTime;
+  }
+
         requestAnimationFrame(gameLoop);
 }

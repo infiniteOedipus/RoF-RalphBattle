@@ -31,8 +31,10 @@ function initialize() {
 	for(const fn of initListeners) {
 		fn()
 	}
-	console.log("gameLoop initializing")
+	console.log("initializing gameState")
+	//changeGameState(gameState.Menu)
 	changeGameState(gameState.Attack)
+	console.log("initializing gameLoop")
 	requestAnimationFrame(gameLoop)
 }
 
