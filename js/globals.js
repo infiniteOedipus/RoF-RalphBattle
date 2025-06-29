@@ -11,6 +11,7 @@ const battleParticipants = ["zeaque"];
 
 //Button Inputs
 const keys = {};
+let keyHeld = false;
 
 window.addEventListener("keydown", e => {
         keys[e.key] = true;
@@ -32,8 +33,8 @@ function initialize() {
 		fn()
 	}
 	console.log("initializing gameState")
-	//changeGameState(gameState.Menu)
-	changeGameState(gameState.Attack)
+	changeGameState(gameState.Menu)
+	//changeGameState(gameState.Attack)
 	console.log("initializing gameLoop")
 	requestAnimationFrame(gameLoop)
 }

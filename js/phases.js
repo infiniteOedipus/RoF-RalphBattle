@@ -43,9 +43,9 @@ Menu: {
 		menuSelections = []
 	},
 
-	update() {
+	update(dt) {
 		//menu controls (transition animations are a part of the individual menu objects)
-
+		menuArrows()
 	},
 	end() {
 		//prepare for combat round and move to atack
@@ -94,10 +94,14 @@ function createBattleUI() {
 	battleParticipants.forEach(character => {
 		let body = new battle_ui_body(character, n++)
 		activeObjects.push(body)
-		activeObjects.push(new battle_ui_button(body, 0))
-		activeObjects.push(new battle_ui_button(body, 1))
-		activeObjects.push(new battle_ui_button(body, 2))
-		activeObjects.push(new battle_ui_button(body, 3))
+		let buttons = [new battle_ui_button(body, 0), 
+			new battle_ui_button(body, 1), 
+			new battle_ui_button(body, 2), 
+			new battle_ui_button(body, 3)
+		]
+		buttons.forEach(button => {
+			activeObjects.push(button)
+		})
 	});
 }
 
@@ -127,6 +131,7 @@ function battle_ui_body(character, n) {
 function battle_ui_button(body, n) {
 	console.log("Creating button", n, "for", body.character)
 	this.character = body.character
+	this.characterSlot = body.slotOrder
 	this.slotOrder = n
 	this.uiButton = [getSprite(`ui`, `ui_button_${this.character}_0`), getSprite("ui", `ui_button_${this.character}_1`)]
 	this.isSelected = false
@@ -143,5 +148,22 @@ function battle_ui_button(body, n) {
 		if (body.buttonSelected != this.slotOrder) this.isSelected = false
 
 		this.sprite = this.uiButton[this.isSelected ? 1 : 0]
+
 	}
+}
+
+function menuArrows() {
+	if (keys["ArrowLeft"] && !keyHeld) {
+		keyHeld = true
+		let activeChar = activeObjects.find(Char => Char.slotOrder === menuSelect);
+		activeChar.buttonSelected = (activeChar.buttonSelected + 3) % 4
+		return
+	}
+	if (keys["ArrowRight"] && !keyHeld) {
+		keyHeld = true
+		let activeChar = activeObjects.find(Char => Char.slotOrder === menuSelect);
+		activeChar.buttonSelected = (activeChar.buttonSelected + 1) % 4
+		return
+	}
+	if (!keys["ArrowRight"] && !keys["ArrowLeft"]) keyHeld = false
 }
