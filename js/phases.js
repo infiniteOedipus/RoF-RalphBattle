@@ -45,7 +45,7 @@ Menu: {
 
 	update(dt) {
 		//menu controls (transition animations are a part of the individual menu objects)
-		menuArrows()
+		handleMenuInput()
 	},
 	end() {
 		//prepare for combat round and move to atack
@@ -68,12 +68,10 @@ function createSoul() {
 				// Animate Soul Movement
 				let dy = 0
 				let dx = 0
-				if (keys["ArrowUp"]) dy -= 1;
-				if (keys["ArrowDown"]) dy += 1;
-				if (keys["ArrowLeft"]) dx -= 1;
-				if (keys["ArrowRight"]) dx += 1;
-				if (keys["q"]) this.angle -= Math.PI / 180 ;
-				if (keys["e"]) this.angle += Math.PI / 180;
+				if (input.up()) dy -= 1;
+				if (input.down()) dy += 1;
+				if (input.left()) dx -= 1;
+				if (input.right()) dx += 1;
 		
 				const length = Math.hypot(dx, dy);
 				if (length > 0) {
@@ -118,7 +116,7 @@ function battle_ui_body(character, n) {
 	this.x = n * this.sprite.width
 	this.y = gameWindow.height + this.sprite.height
 	this.update = (dt) => {
-		if (this.y > gameWindow.height) this.y -= dt * 60
+		if (this.y > gameWindow.height) this.y -= dt * 120
 		if (this.y < gameWindow.height) this.y = gameWindow.height
 
 		if (menuSelect == this.slotOrder) this.isSelected = true
@@ -132,10 +130,10 @@ function battle_ui_button(body, n) {
 	console.log("Creating button", n, "for", body.character)
 	this.character = body.character
 	this.characterSlot = body.slotOrder
-	this.slotOrder = n
+	this.buttonOrder = n
 	this.uiButton = [getSprite(`ui`, `ui_button_${this.character}_0`), getSprite("ui", `ui_button_${this.character}_1`)]
 	this.isSelected = false
-	this.buttonSelected = 0
+	//this.buttonSelected = 0
 
 	this.sprite = this.uiButton[this.isSelected ? 1 : 0]
 	this.origin = "bottomLeft"
@@ -144,26 +142,41 @@ function battle_ui_button(body, n) {
 	this.update = (dt) => {
 		this.y = body.y
 
-		if (body.buttonSelected == this.slotOrder) this.isSelected = true
-		if (body.buttonSelected != this.slotOrder) this.isSelected = false
+		if (body.buttonSelected == this.buttonOrder) this.isSelected = true
+		if (body.buttonSelected != this.buttonOrder) this.isSelected = false
 
 		this.sprite = this.uiButton[this.isSelected ? 1 : 0]
 
 	}
 }
 
-function menuArrows() {
-	if (keys["ArrowLeft"] && !keyHeld) {
-		keyHeld = true
-		let activeChar = activeObjects.find(Char => Char.slotOrder === menuSelect);
+function handleMenuInput() {
+	let activeChar = activeObjects.find(Char => Char.slotOrder === menuSelect);
+
+	if (input.left() && !keyHeld.left) {
+		keyHeld.left = true
 		activeChar.buttonSelected = (activeChar.buttonSelected + 3) % 4
-		return
 	}
-	if (keys["ArrowRight"] && !keyHeld) {
-		keyHeld = true
-		let activeChar = activeObjects.find(Char => Char.slotOrder === menuSelect);
+	if (!input.left()) keyHeld.left = false
+
+	if (input.right() && !keyHeld.right) {
+		keyHeld.right = true
 		activeChar.buttonSelected = (activeChar.buttonSelected + 1) % 4
-		return
 	}
-	if (!keys["ArrowRight"] && !keys["ArrowLeft"]) keyHeld = false
+	if (!input.right()) keyHeld.right = false
+
+	if (input.confirm() && !keyHeld.confirm) {
+		keyHeld.confirm = true
+		let optionSelect = activeObjects.find(button => button.buttonOrder === activeChar.buttonSelected);
+		menuSelections[menuSelect] = optionSelect
+		menuSelect++
+		if (menuSelect > (battleParticipants.length - 1)) gameState.Menu.end()
+	}
+	if (!input.confirm()) keyHeld.confirm = false
+
+	if (input.cancel() && !keyHeld.cancel) {
+		keyHeld.confirm = true
+		if (menuSelect > 0) menuSelect -= 1
+	}
+	if (!input.cancel()) keyHeld.cancel = false
 }

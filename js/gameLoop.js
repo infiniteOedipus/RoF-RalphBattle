@@ -28,7 +28,6 @@ function render(dt) {
                         const w = obj.width ?? drawSprite?.width ?? 32;
                         const h = obj.height ?? drawSprite?.height ?? 32;
                         drawActiveObject(drawSprite, w, h, obj.origin)
-                        //game.drawImage(drawSprite, -w / 2, -h / 2, w, h)
                         game.restore()
                 })
 }

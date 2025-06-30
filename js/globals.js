@@ -11,7 +11,7 @@ const battleParticipants = ["zeaque"];
 
 //Button Inputs
 const keys = {};
-let keyHeld = false;
+const keyHeld = {};
 
 window.addEventListener("keydown", e => {
         keys[e.key] = true;
@@ -20,6 +20,14 @@ window.addEventListener("keydown", e => {
 window.addEventListener("keyup", e => {
         keys[e.key] = false;
 });
+const input = {
+	left    : () => keys["ArrowLeft"] || keys["a"] || keys["A"],
+	right   : () => keys["ArrowRight"] || keys["d"] || keys["D"],
+	up      : () => keys["ArrowUp"] || keys["w"] || keys["W"],
+	down    : () => keys["ArrowDown"] || keys["s"] || keys["S"],
+	confirm : () => keys["z"] || keys[" "] || keys["Z"],
+	cancel  : () => keys["x"] || keys["Shift"] || keys["X"]
+}
 //Initialize
 const initListeners = []
 
