@@ -31,8 +31,12 @@ Attack: {
 
     end() {
 		// Clean up if needed, step combat round, and change state back to Menu
-		let soul = activeObjects.find(obj => obj.name === "soul");
-		soul.setForRemoval = true
+		activeObjects.find(obj => obj.name === "soul")
+			.setForRemoval = true;
+
+		activeObjects.filter(obj => obj.type === "bullet" && typeof obj.endBullet === "function")
+			.forEach(obj => obj.endBullet());
+
 		combatRound++
     }
 },
@@ -51,7 +55,9 @@ Menu: {
 	},
 	end() {
 		//prepare for combat round and move to atack
-		menuCleanup()
+		//menuCleanup()
+		activeObjects.filter(obj => obj.type === "menu")
+			.forEach(obj => obj.setForRemoval = true);
 	}
 }
 }
@@ -108,11 +114,14 @@ function createBattleUI() {
 
 function battle_ui_body(character, n) {
 	console.log("Creating Battle ui body for", character)
+	this.type = "menu"
+
 	this.character = character
 	this.slotOrder = n
 	this.uiBody = [getSprite(`ui`, `ui_body_${character}_0`), getSprite("ui", `ui_body_${character}_1`)]
 	this.isSelected = false
-	this.buttonSelected = 0
+	this.buttonSelectedCache = 0      //The cached position of last button selected.
+	this.buttonSelectedDisplay = null //the highlighted button. Is set to null when not positioned in the menu of Active Character. May change this later if I want to add a special highlight to show previous choices.
 
 	this.sprite = this.uiBody[this.isSelected ? 1 : 0]
 	this.origin = "bottomLeft"
@@ -122,14 +131,21 @@ function battle_ui_body(character, n) {
 		if (this.y > gameWindow.height) this.y -= dt * 120
 		if (this.y < gameWindow.height) this.y = gameWindow.height
 
-		if (menuSelect == this.slotOrder) this.isSelected = true
-		if (menuSelect != this.slotOrder) this.isSelected = false
-
+		if (menuSelect == this.slotOrder) {
+			this.isSelected = true
+			this.buttonSelectedDisplay = this.buttonSelectedCache
+		}
+		if (menuSelect != this.slotOrder) {
+			this.isSelected = false
+			this.buttonSelectedDisplay = null
+		}
 		this.sprite = this.uiBody[this.isSelected ? 1 : 0]
 	}
 }
 
 function battle_ui_button(body, n) {
+	this.type = "menu"
+
 	console.log("Creating button", n, "for", body.character)
 	this.character = body.character
 	this.characterSlot = body.slotOrder
@@ -144,11 +160,8 @@ function battle_ui_button(body, n) {
 	this.y = body.y
 	this.update = (dt) => {
 		this.y = body.y
-
-		if (body.buttonSelected == this.buttonOrder) this.isSelected = true
-		if (body.buttonSelected != this.buttonOrder) this.isSelected = false
-
-		this.sprite = this.uiButton[this.isSelected ? 1 : 0]
+		this.isSelected = body.buttonSelectedCache == this.buttonOrder
+		this.sprite = this.uiButton[body.buttonSelectedDisplay == this.buttonOrder ? 1 : 0]
 
 	}
 }
@@ -158,19 +171,19 @@ function handleMenuInput() {
 
 	if (input.left() && !keyHeld.left) {
 		keyHeld.left = true
-		activeChar.buttonSelected = (activeChar.buttonSelected + 3) % 4
+		activeChar.buttonSelectedCache = (activeChar.buttonSelectedCache + 3) % 4
 	}
 	if (!input.left()) keyHeld.left = false
 
 	if (input.right() && !keyHeld.right) {
 		keyHeld.right = true
-		activeChar.buttonSelected = (activeChar.buttonSelected + 1) % 4
+		activeChar.buttonSelectedCache = (activeChar.buttonSelectedCache + 1) % 4
 	}
 	if (!input.right()) keyHeld.right = false
 
 	if (input.confirm() && !keyHeld.confirm) {
 		keyHeld.confirm = true
-		let optionSelect = activeObjects.find(button => button.buttonOrder === activeChar.buttonSelected);
+		let optionSelect = activeObjects.find(button => button.buttonOrder === activeChar.buttonSelectedCache);
 		menuSelections[menuSelect] = optionSelect
 		menuSelect++
 		if (menuSelect > (battleParticipants.length - 1)) changeGameState(gameState.Attack)
@@ -178,7 +191,7 @@ function handleMenuInput() {
 	if (!input.confirm()) keyHeld.confirm = false
 
 	if (input.cancel() && !keyHeld.cancel) {
-		keyHeld.confirm = true
+		keyHeld.cancel = true
 		if (menuSelect > 0) menuSelect -= 1
 	}
 	if (!input.cancel()) keyHeld.cancel = false

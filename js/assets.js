@@ -47,6 +47,42 @@
         }, {
             name: "ui_button_zeaque_1",
             src: "https://file.garden/Z49oqnj5okOfzefL/Battle/ui_button_zeaque_1.png"
+        },{
+            name: "ui_body_vessta_0",
+            src: "https://file.garden/Z49oqnj5okOfzefL/Battle/ui_body_zeaque_0.png"
+        }, {
+            name: "ui_body_vessta_1",
+            src: "https://file.garden/Z49oqnj5okOfzefL/Battle/ui_body_zeaque_1.png"
+        }, {
+            name: "ui_button_vessta_0",
+            src: "https://file.garden/Z49oqnj5okOfzefL/Battle/ui_button_zeaque_0.png"
+        }, {
+            name: "ui_button_vessta_1",
+            src: "https://file.garden/Z49oqnj5okOfzefL/Battle/ui_button_zeaque_1.png"
+        },{
+            name: "ui_body_markor_0",
+            src: "https://file.garden/Z49oqnj5okOfzefL/Battle/ui_body_zeaque_0.png"
+        }, {
+            name: "ui_body_markor_1",
+            src: "https://file.garden/Z49oqnj5okOfzefL/Battle/ui_body_zeaque_1.png"
+        }, {
+            name: "ui_button_markor_0",
+            src: "https://file.garden/Z49oqnj5okOfzefL/Battle/ui_button_zeaque_0.png"
+        }, {
+            name: "ui_button_markor_1",
+            src: "https://file.garden/Z49oqnj5okOfzefL/Battle/ui_button_zeaque_1.png"
+        },{
+            name: "ui_body_phenix_0",
+            src: "https://file.garden/Z49oqnj5okOfzefL/Battle/ui_body_zeaque_0.png"
+        }, {
+            name: "ui_body_phenix_1",
+            src: "https://file.garden/Z49oqnj5okOfzefL/Battle/ui_body_zeaque_1.png"
+        }, {
+            name: "ui_button_phenix_0",
+            src: "https://file.garden/Z49oqnj5okOfzefL/Battle/ui_button_zeaque_0.png"
+        }, {
+            name: "ui_button_phenix_1",
+            src: "https://file.garden/Z49oqnj5okOfzefL/Battle/ui_button_zeaque_1.png"
         }
 ]
 }
