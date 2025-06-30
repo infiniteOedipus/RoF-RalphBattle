@@ -26,12 +26,14 @@ Attack: {
 	update(dt) {
 		bulletmap0(dt)
 		rndTimer += dt
+		if (rndTimer > 10) changeGameState(gameState.Menu)
 	},
 
     end() {
 		// Clean up if needed, step combat round, and change state back to Menu
+		let soul = activeObjects.find(obj => obj.name === "soul");
+		soul.setForRemoval = true
 		combatRound++
-		changeGameState(gameState.Menu)
     }
 },
 
@@ -49,13 +51,14 @@ Menu: {
 	},
 	end() {
 		//prepare for combat round and move to atack
-		changeGameState(gameState.Attack)
+		menuCleanup()
 	}
 }
 }
 
 function createSoul() {
 	let soul = {
+			name: "soul",
 			x: 325,
 			y: 225,
 			z: 10,
@@ -170,7 +173,7 @@ function handleMenuInput() {
 		let optionSelect = activeObjects.find(button => button.buttonOrder === activeChar.buttonSelected);
 		menuSelections[menuSelect] = optionSelect
 		menuSelect++
-		if (menuSelect > (battleParticipants.length - 1)) gameState.Menu.end()
+		if (menuSelect > (battleParticipants.length - 1)) changeGameState(gameState.Attack)
 	}
 	if (!input.confirm()) keyHeld.confirm = false
 
@@ -179,4 +182,8 @@ function handleMenuInput() {
 		if (menuSelect > 0) menuSelect -= 1
 	}
 	if (!input.cancel()) keyHeld.cancel = false
+}
+
+function menuCleanup() {
+
 }
