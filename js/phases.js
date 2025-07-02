@@ -6,11 +6,13 @@ let combatRound = 0;
 let rndTimer = null;
 
 const menuState = {
-	activeCharacter  : 0,
-	menuSelections   : [],
-	cachedSelections : [],
-	lockedControls   : true
-}
+	activeCharacter: 0,
+	menuSelections: [],
+	cachedPositions: [],
+	lockedControls: true,
+	menuLoaded: [],
+	lastDirection: "right"
+};
 
 function changeGameState(newState) {
 	console.log("changing game state to:", newState)
@@ -55,7 +57,7 @@ Menu: {
 		menuState.menuSelections       = []
 		menuState.cachedSelections     = battleParticipants.map(() => 0)
 		activeObjects.push(new popupBattleUI(
-			createPopupButtons()
+			createPopupButtons
 		))
 	},
 
@@ -105,108 +107,7 @@ function createSoul() {
 		};
 		activeObjects.push(soul)
 }
-/*
-function createBattleUI() {
-	console.log("Creating Battle ui")
-	let n = 0
-	battleParticipants.forEach(character => {
-		let body = new battle_ui_body(character, n++)
-		activeObjects.push(body)
-		let buttons = [new battle_ui_button(body, 0), 
-			new battle_ui_button(body, 1), 
-			new battle_ui_button(body, 2), 
-			new battle_ui_button(body, 3)
-		]
-		buttons.forEach(button => {
-			activeObjects.push(button)
-		})
-	});
-}
 
-function battle_ui_body(character, n) {
-	console.log("Creating Battle ui body for", character)
-
-	this.character = character
-	this.slotOrder = n
-	this.uiBody = [getSprite(`ui`, `ui_body_${character}_0`), getSprite("ui", `ui_body_${character}_1`)]
-	this.isSelected = false
-	this.buttonSelectedCache = 0      //The cached position of last button selected.
-	this.buttonSelectedDisplay = null //the highlighted button. Is set to null when not positioned in the menu of Active Character. May change this later if I want to add a special highlight to show previous choices.
-
-	this.sprite = this.uiBody[this.isSelected ? 1 : 0]
-	this.origin = "bottomLeft"
-	this.x = n * this.sprite.width
-	this.y = gameWindow.height + this.sprite.height
-	this.update = (dt) => {
-		if (this.y > gameWindow.height) this.y -= dt * 120
-		if (this.y < gameWindow.height) this.y = gameWindow.height
-
-		if (menuSelect == this.slotOrder) {
-			this.isSelected = true
-			this.buttonSelectedDisplay = this.buttonSelectedCache
-		}
-		if (menuSelect != this.slotOrder) {
-			this.isSelected = false
-			this.buttonSelectedDisplay = null
-		}
-		this.sprite = this.uiBody[this.isSelected ? 1 : 0]
-	}
-}
-
-function battle_ui_button(body, n) {
-	this.type = "menu"
-
-	console.log("Creating button", n, "for", body.character)
-	this.character = body.character
-	this.characterSlot = body.slotOrder
-	this.buttonOrder = n
-	this.uiButton = [getSprite(`ui`, `ui_button_${this.character}_0`), getSprite("ui", `ui_button_${this.character}_1`)]
-	this.isSelected = false
-	//this.buttonSelected = 0
-
-	this.sprite = this.uiButton[this.isSelected ? 1 : 0]
-	this.origin = "bottomLeft"
-	this.x = n * this.sprite.width + body.x
-	this.y = body.y
-	this.update = (dt) => {
-		this.y = body.y
-		this.isSelected = body.buttonSelectedCache == this.buttonOrder
-		this.sprite = this.uiButton[body.buttonSelectedDisplay == this.buttonOrder ? 1 : 0]
-
-	}
-}
-
-function handleMenuInput() {
-	let activeChar = activeObjects.find(Char => Char.slotOrder === menuSelect);
-
-	if (input.left() && !keyHeld.left) {
-		keyHeld.left = true
-		activeChar.buttonSelectedCache = (activeChar.buttonSelectedCache + 3) % 4
-	}
-	if (!input.left()) keyHeld.left = false
-
-	if (input.right() && !keyHeld.right) {
-		keyHeld.right = true
-		activeChar.buttonSelectedCache = (activeChar.buttonSelectedCache + 1) % 4
-	}
-	if (!input.right()) keyHeld.right = false
-
-	if (input.confirm() && !keyHeld.confirm) {
-		keyHeld.confirm = true
-		let optionSelect = activeObjects.find(button => button.buttonOrder === activeChar.buttonSelectedCache);
-		menuSelections[menuSelect] = optionSelect
-		menuSelect++
-		if (menuSelect > (battleParticipants.length - 1)) changeGameState(gameState.Attack)
-	}
-	if (!input.confirm()) keyHeld.confirm = false
-
-	if (input.cancel() && !keyHeld.cancel) {
-		keyHeld.cancel = true
-		if (menuSelect > 0) menuSelect -= 1
-	}
-	if (!input.cancel()) keyHeld.cancel = false
-}
-*/
 
 function popupBattleUI(onPositioned) {
 	this.type              = "menu"
@@ -242,7 +143,9 @@ function popupBattleUI(onPositioned) {
 		if (this.motionState.currentGenerator) {
 			const { done } = this.motionState.currentGenerator.next(dt)
 			if (done) {
-				if (this.motionState.step === 0) 
+				if (this.motionState.step === 0) {
+					this.onPositioned()
+				}
 				this.motionState.step++
 				this.motionState.currentGenerator = null
 			}
@@ -253,11 +156,9 @@ function popupBattleUI(onPositioned) {
 	} 
 }
 
-//this.motionGenerators = this.motionScript.map(step => step.action); converts motion script into a list of motion functions to be executed
-//this.motionGenerators = this.motionGenerators.filter(g => !g.next(dt).done);  performs all steps at once
 
 function createPopupButtons() {
-	const buttonMax = 4
+	const buttonMax = battleMenuValues.length
 	for (let i = 0; i < buttonMax; i++) {
 		activeObjects.push(new popupBattleButton(i, buttonMax, originX, originY))
 		
@@ -267,13 +168,131 @@ function createPopupButtons() {
 function popupBattleButton(i, buttonMax, originX, originY){
 	this.type = "menu"
 
+	this.character         = battleParticipants[menuState.activeCharacter]
+	this.sprite            = getSprite("souls", `soul_${this.character}`)
+	this.positionIndex     = i
+
 	this.deltaAngle = 2 * Math.PI / buttonMax //The Angular Diferential between buttons
-	this.renderedAngle = i * this.deltaAngle
+	this.modAngle = i * this.deltaAngle
+	this.baseAngle = -Math.PI
+	this.realAngle = this.modAngle + this.baseAngle
 
-	this.radius = 30
+	this.radius = 0
 
-	this.y = originY - Math.cos(this.renderedAngle) * this.radius / 3
-	this.x = originX + Math.sin(this.renderedAngle) * this.radius
+	this.y = originY - Math.cos(this.realAngle) * this.radius / 3
+	this.x = originX + Math.sin(this.realAngle) * this.radius
 
-	this.scale = Math.cos(this.renderedAngle) * 0.1 + 0.9
+	this.scale = Math.cos(this.realAngle) * 0.1 + 0.9
+	this.opacity = 0
+
+	this.motionScript = [
+		{type: "openingSpin", action: this.openSpin()},
+		{type: "activeUpdate", action:this.controlsUpdate(condition) }, 
+		{type: "closingSpin", action: this.closeSpin()}
+	]
+
+	this.motionState = {
+		step: 0,
+		currentGenerator: null
+	}
+
+	this.openSpin = function* () {
+		let t = 0;
+		const duration = 1
+		while (t < duration) {
+			const progress = t / duration
+			this.radius = 30 * progress;
+			this.baseAngle = -Math.PI + Math.PI * progress
+			this.opacity = Math.min(progress / 0.8, 1)
+			t += yield;
+		}
+		this.radius = 30
+		this.baseAngle = 0
+		this.opacity = 1
+	}
+	this.controlsUpdate = function* (condition) {
+		let dt = 0 
+		while (!condition) {
+			const destinationAngle = (2 * Math.PI / battleMenuValues.length) * menuState.cachedPositions[menuState.activeCharacter]
+			if (menuState.lastDirection === "right") {
+				//struggling to make this work right
+			}
+			dt = yield
+		}
+	}
+	this.closeSpin = function* () {
+		let t = 0;
+		const duration = 1
+
+		let startingAngle = this.baseAngle
+		while (t < duration) {
+			const progress = t / duration
+			this.radius = 30 - 30 * progress;
+			this.baseAngle = startingAngle + Math.PI * progress
+			this.opacity = Math.min(progress / 0.8, 1)
+			t += yield;
+		}
+		this.radius = 0
+		this.baseAngle = startingAngle + Math.PI
+		this.opacity = 0
+	}
+
+	this.update = (dt) => {
+		if (!this.motionState.currentGenerator) {
+			this.motionState.currentGenerator = this.motionScript[this.motionState.step]?.action
+		}
+
+		if (this.motionState.currentGenerator) {
+			const { done } = this.motionState.currentGenerator.next(dt)
+			if (done) {
+				if (this.motionState.step === 0) {
+					menuState.lockedControls = false
+				}
+				if (this.motionState.step === 2) {
+					menuState.lockedControls = true
+				}
+				this.motionState.step++
+				this.motionState.currentGenerator = null
+			}
+		}
+
+		this.realAngle = this.modAngle + this.baseAngle
+		this.y = originY - Math.cos(this.realAngle) * this.radius / 3
+		this.x = originX + Math.sin(this.realAngle) * this.radius
+		this.scale = Math.cos(this.realAngle) * 0.1 + 0.9
+	}
+}
+
+function handleMenuInput() {
+	let menuPosition = menuState.cachedPositions[activeCharacter];
+	if (menuState.lockedControls === true) return
+
+	if (input.left() && !keyHeld.left) {
+		keyHeld.left = true
+		menuState.lastDirection = "left"
+		menuPosition = (menuPosition + 3) % 4
+	}
+	if (!input.left()) keyHeld.left = false
+
+	if (input.right() && !keyHeld.right) {
+		keyHeld.right = true
+		menuState.lastDirection = "right"
+		menuPosition  = (menuPosition + 1) % 4
+	}
+	if (!input.right()) keyHeld.right = false
+
+	if (input.confirm() && !keyHeld.confirm) {
+		keyHeld.confirm = true
+		menuState.lockedControls = true
+
+		if (menuState.activeCharacter > (battleParticipants.length - 1)) changeGameState(gameState.Attack)
+	}
+	if (!input.confirm()) keyHeld.confirm = false
+
+	if (input.cancel() && !keyHeld.cancel) {
+		keyHeld.cancel = true
+		menuState.lockedControls = true
+		if (menuSelect > 0) menuSelect -= 1
+	}
+	if (!input.cancel()) keyHeld.cancel = false
 }

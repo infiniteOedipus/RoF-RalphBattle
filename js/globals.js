@@ -8,6 +8,46 @@ game.msImageSmoothingEnabled     = false;
 
 //Game Specific variables to be adjusted each game, update for each project
 const battleParticipants = ["zeaque", "markor", "phenix"];
+const battleMenuValues = [
+	{
+		label: "Attack",
+		submenu: false,
+		getFlavorText: (char) => ({
+			zeaque: "Zeaque readies his Buckshot",
+			markor: "Markor charges his lazer",
+			phenix: "Phenixs burns a way forward"
+		})[char]
+	},
+	{
+		label: "Item",
+		submenu: true,
+		getFlavorText: (char) => ({
+			zeaque: "Zeaque reorginizes his inventory",
+			markor: "Markor might have something",
+			phenix: "Phenix has something burning a hole in his pocket"
+		})[char],
+		getOptions: 1
+	},
+	{
+		label: "Defend",
+		submenu: false,
+		getFlavorText: (char) => ({
+			zeaque: "Zeaque is ready to parry",
+			markor: "Markor forms a mental barrier",
+			phenix: "Phenix burns a way forward"
+		})[char]
+	},
+	{
+		label: "Blood",
+		submenu: true,
+		getFlavorText: (char) => ({
+			zeaque: "Teal",
+			markor: "Gold",
+			phenix: "Rust"
+		})[char],
+		getOptions: 1
+	}
+]
 
 //Button Inputs
 const keys = {};
