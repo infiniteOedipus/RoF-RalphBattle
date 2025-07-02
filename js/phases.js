@@ -5,14 +5,7 @@ let currentGameState = null;
 let combatRound = 0;
 let rndTimer = null;
 
-const menuState = {
-	activeCharacter: 0,
-	menuSelections: [],
-	cachedPositions: [],
-	lockedControls: true,
-	menuLoaded: [],
-	lastDirection: "right"
-};
+
 
 function changeGameState(newState) {
 	console.log("changing game state to:", newState)
@@ -56,9 +49,7 @@ Menu: {
 		menuState.activeCharacter      = 0
 		menuState.menuSelections       = []
 		menuState.cachedSelections     = battleParticipants.map(() => 0)
-		activeObjects.push(new popupBattleUI(
-			createPopupButtons
-		))
+		runNextCharacterUI()
 	},
 
 	update(dt) {
@@ -109,6 +100,19 @@ function createSoul() {
 }
 
 
+
+/*
+_________________________________________________________________________________________________________________________________
+|																																|
+|***************************************************ENTERING MENU HELL********************************************************  |
+|																																|
+|												currently commented out as I move it to a new file								|
+|_______________________________________________________________________________________________________________________________|
+
+*/
+
+
+/*
 function popupBattleUI(onPositioned) {
 	this.type              = "menu"
 
@@ -296,3 +300,5 @@ function handleMenuInput() {
 	}
 	if (!input.cancel()) keyHeld.cancel = false
 }
+
+*/

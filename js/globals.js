@@ -8,6 +8,22 @@ game.msImageSmoothingEnabled     = false;
 
 //Game Specific variables to be adjusted each game, update for each project
 const battleParticipants = ["zeaque", "markor", "phenix"];
+
+const menuPositions = {
+  zeaque: {
+    startX: 50, startY: 400,
+    endX: 100, endY: 250
+  },
+  markor: {
+    startX: 150, startY: 400,
+    endX: 200, endY: 250
+  },
+  phenix: {
+    startX: 350, startY: 400,
+    endX: 400, endY: 250
+  }
+};
+
 const battleMenuValues = [
 	{
 		label: "Attack",
