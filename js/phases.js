@@ -1,10 +1,16 @@
 //Initiating Game States
+let activeObjects = []
+
 let currentGameState = null;
 let combatRound = 0;
 let rndTimer = null;
-let menuSelect = null;
-let menuSelections = []
-let activeObjects = []
+
+const menuState = {
+	activeCharacter  : 0,
+	menuSelections   : [],
+	cachedSelections : [],
+	lockedControls   : true
+}
 
 function changeGameState(newState) {
 	console.log("changing game state to:", newState)
@@ -44,15 +50,20 @@ Attack: {
 Menu: {
 	init() { 
 		//create interactive menu elements
-		createBattleUI()
-		menuSelect = 0;
-		menuSelections = []
+		//createBattleUI()
+		menuState.activeCharacter      = 0
+		menuState.menuSelections       = []
+		menuState.cachedSelections     = battleParticipants.map(() => 0)
+		activeObjects.push(new popupBattleUI(
+			createPopupButtons()
+		))
 	},
 
 	update(dt) {
 		//menu controls (transition animations are a part of the individual menu objects)
-		handleMenuInput()
+		//handleMenuInput()
 	},
+
 	end() {
 		//prepare for combat round and move to atack
 		//menuCleanup()
@@ -94,7 +105,7 @@ function createSoul() {
 		};
 		activeObjects.push(soul)
 }
-
+/*
 function createBattleUI() {
 	console.log("Creating Battle ui")
 	let n = 0
@@ -114,7 +125,6 @@ function createBattleUI() {
 
 function battle_ui_body(character, n) {
 	console.log("Creating Battle ui body for", character)
-	this.type = "menu"
 
 	this.character = character
 	this.slotOrder = n
@@ -196,7 +206,74 @@ function handleMenuInput() {
 	}
 	if (!input.cancel()) keyHeld.cancel = false
 }
+*/
 
-function menuCleanup() {
+function popupBattleUI(onPositioned) {
+	this.type              = "menu"
 
+	this.character         = battleParticipants[menuState.activeCharacter]
+	this.sprite            = getSprite("souls", `soul_${this.character}`)
+
+	this.pathX = 50
+	this.pathY = 400
+	this.modX  = 0
+	this.modY  = 0
+
+	this.x = this.pathX + this.modX
+	this.y = this.pathY + this.modY
+
+	this.motionScript = [
+		{type: "generator", action: linearMotion(this, "pathX", "pathY", this.x, this.y, 75, 250, 1.6, 0, "tOverflow")},
+		{type: "generator", action: sinMotion(this, "modY", 1, 10, 0, "forever", 0, null)}
+	]
+
+	this.motionState = {
+		step: 0,
+		currentGenerator: null
+	}
+
+	this.onPositioned = onPositioned ?? (() => {}) //when positioned, run the function passed through the popupBattleUI function. Also blank function to protect from errors
+
+	this.update = (dt) => {
+		if (!this.motionState.currentGenerator) {
+			this.motionState.currentGenerator = this.motionScript[this.motionState.step]?.action
+		}
+
+		if (this.motionState.currentGenerator) {
+			const { done } = this.motionState.currentGenerator.next(dt)
+			if (done) {
+				if (this.motionState.step === 0) 
+				this.motionState.step++
+				this.motionState.currentGenerator = null
+			}
+		}
+
+		this.x = this.pathX + this.modX
+		this.y = this.pathY + this.modY
+	} 
+}
+
+//this.motionGenerators = this.motionScript.map(step => step.action); converts motion script into a list of motion functions to be executed
+//this.motionGenerators = this.motionGenerators.filter(g => !g.next(dt).done);  performs all steps at once
+
+function createPopupButtons() {
+	const buttonMax = 4
+	for (let i = 0; i < buttonMax; i++) {
+		activeObjects.push(new popupBattleButton(i, buttonMax, originX, originY))
+		
+	}
+}
+
+function popupBattleButton(i, buttonMax, originX, originY){
+	this.type = "menu"
+
+	this.deltaAngle = 2 * Math.PI / buttonMax //The Angular Diferential between buttons
+	this.renderedAngle = i * this.deltaAngle
+
+	this.radius = 30
+
+	this.y = originY - Math.cos(this.renderedAngle) * this.radius / 3
+	this.x = originX + Math.sin(this.renderedAngle) * this.radius
+
+	this.scale = Math.cos(this.renderedAngle) * 0.1 + 0.9
 }

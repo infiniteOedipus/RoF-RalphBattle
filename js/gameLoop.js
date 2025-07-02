@@ -51,8 +51,8 @@ let fpsTime = lastTime
 let frameCount = 0;
 const fpsCounter = document.getElementById("fpsCounter")
 function gameLoop(currentTime = performance.now()) {
-        const dt = (currentTime - lastTime) / 1000;
-//        if(dt > (1/30)) dt = (1/30)
+        let dt = (currentTime - lastTime) / 1000
+        dt = Math.min(dt, 1/24)
         lastTime = currentTime;
         update(dt);
         render(dt);
