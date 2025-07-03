@@ -122,10 +122,11 @@ function popupBattleButton(i, buttonMax, originX, originY, characterIdx){
 
 	this.turnTo = function* (targetAngle) {
 		console.log("turning function subroutine started")
-		const duration = 0.25
+		const duration = 0.125
 		let t = 0
 		let start = this.baseAngle
-		let delta = ((targetAngle - start + Math.PI) % (2 * Math.PI)) - Math.PI;
+		let dir = (targetAngle - start) / Math.abs(targetAngle - start)
+		let delta = dir * ((Math.abs(targetAngle - start) - 0.0001) % (this.deltaAngle)) + 0.0001;
 		console.log("baseAngle:",this.baseAngle, "targetAngle:", targetAngle)
 		while (t < duration) {
 			const p = t / duration;
@@ -258,7 +259,7 @@ function handleMenuInput() {
 	if (input.cancel() && !keyHeld.cancel) {
 		keyHeld.cancel = true
 		menuState.lockedControls = true
-		if (menuSelect > 0) menuSelect -= 1
+		if (menuState.activeCharacter > 0) menuState.activeCharacter -= 1
 	}
 	if (!input.cancel()) keyHeld.cancel = false
 }
