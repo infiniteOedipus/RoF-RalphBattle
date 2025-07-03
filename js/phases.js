@@ -54,7 +54,7 @@ Menu: {
 
 	update(dt) {
 		//menu controls (transition animations are a part of the individual menu objects)
-		//handleMenuInput()
+		handleMenuInput()
 	},
 
 	end() {
@@ -81,9 +81,9 @@ function createSoul() {
 				// Animate Soul Movement
 				let dy = 0
 				let dx = 0
-				if (input.up()) dy -= 1;
-				if (input.down()) dy += 1;
-				if (input.left()) dx -= 1;
+				if (input.up())    dy -= 1;
+				if (input.down())  dy += 1;
+				if (input.left())  dx -= 1;
 				if (input.right()) dx += 1;
 		
 				const length = Math.hypot(dx, dy);

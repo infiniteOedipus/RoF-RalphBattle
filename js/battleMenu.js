@@ -12,7 +12,7 @@ const menuState = {
 function runNextCharacterUI() {
 	const char = battleParticipants[menuState.activeCharacter]
 	const position = menuPositions[char]
-
+	menuState.cachedPositions[menuState.activeCharacter] = 0
 	activeObjects.push(new popupUIOrigin(char, position, (ui) => {
 		createPopupButtons(ui)
 		menuState.lockedControls = false
@@ -120,21 +120,21 @@ function popupBattleButton(i, buttonMax, originX, originY, characterIdx){
 		this.opacity = 1
 	}
 
-	this.controlsUpdate = function* () {
-		let dt = 0 
-		while (this.characterIdx === menuState.activeCharacter) {
-			let destinationAngle = (2 * Math.PI / battleMenuValues.length) * menuState.cachedPositions[menuState.activeCharacter]
-			let currentAngle = this.baseAngle
-			if (menuState.lastDirection === "right") { //rotate clockwise
-				this.baseAngle = (this.baseAngle + dt * 2 * Math.PI) % (2 * Math.PI) 
-				if (destinationAngle > currentAngle && this.baseAngle > destinationAngle) this.baseAngle = destinationAngle
-			}
-			if (menuState.lastDirection === "left") { //rotate counterclockwise
-				this.baseAngle = ( (2 * Math.PI) - (this.baseAngle + dt * 2 * Math.PI) ) % (2 * Math.PI)
-				if (destinationAngle < currentAngle && this.baseAngle < destinationAngle) this.baseAngle = destinationAngle
-			}
-			dt = yield
+	this.turnTo = function* (targetAngle) {
+		console.log("turning function subroutine started")
+		const duration = 0.25
+		let t = 0
+		let start = this.baseAngle
+		let delta = ((targetAngle - start + Math.PI) % (2 * Math.PI)) - Math.PI;
+		console.log("baseAngle:",this.baseAngle, "targetAngle:", targetAngle)
+		while (t < duration) {
+			const p = t / duration;
+			this.baseAngle = start + delta * p;
+			t += yield;
 		}
+		console.log("turning function subroutine ended")
+		this.baseAngle = targetAngle;
+		console.log(this.baseAngle)
 	}
 
 	this.closeSpin = function* () {
@@ -154,10 +154,13 @@ function popupBattleButton(i, buttonMax, originX, originY, characterIdx){
 		this.opacity = 0
 	}
 
+	this.enqueueRotation = (targetAngle) => {
+		console.log("enqueue targetAngle:", targetAngle)
+		this.motionScript.push({type: "turnTo", action: this.turnTo(targetAngle)})
+	}
+
 	this.motionScript = [
-		{type: "openingSpin", action: this.openSpin()},
-		{type: "activeUpdate", action:this.controlsUpdate() }, 
-		{type: "closingSpin", action: this.closeSpin()}
+		{type: "openingSpin", action: this.openSpin()}
 	]
 
 	this.motionState = {
@@ -166,7 +169,7 @@ function popupBattleButton(i, buttonMax, originX, originY, characterIdx){
 	}
 
 	this.update = (dt) => {
-		if (!this.motionState.currentGenerator) {
+		if (!this.motionState.currentGenerator && this.motionScript[this.motionState.step]) {
 			this.motionState.currentGenerator = this.motionScript[this.motionState.step]?.action
 		}
 
@@ -176,11 +179,10 @@ function popupBattleButton(i, buttonMax, originX, originY, characterIdx){
 				if (this.motionState.step === 0) {
 					menuState.lockedControls = false
 				}
-				if (this.motionState.step === 2) {
-					menuState.lockedControls = true
-				}
+
 				this.motionState.step++
 				this.motionState.currentGenerator = null
+				console.log(this.motionState.step)
 			}
 		}
 
@@ -194,22 +196,47 @@ function popupBattleButton(i, buttonMax, originX, originY, characterIdx){
 }
 
 function handleMenuInput() {
-	let menuPosition = menuState.cachedPositions[activeCharacter];
+	const idx = menuState.activeCharacter
+	let menuPosition = menuState.cachedPositions[idx];
+
 	if (menuState.lockedControls === true) return
+
+		/*Input left*/
 
 	if (input.left() && !keyHeld.left) {
 		keyHeld.left = true
 		menuState.lastDirection = "left"
-		menuPosition = (menuPosition + 3) % 4
+		menuState.cachedPositions[idx] = (menuPosition + 3) % 4
+
+		const newAngle = (2 * Math.PI / battleMenuValues.length) * menuState.cachedPositions[idx];
+		console.log("menuValues length:", battleMenuValues.length, "menuState cache index:", menuState.cachedPositions[idx])
+		activeObjects.forEach(obj => {
+			if (obj.type === "menu" && obj.characterIdx === idx) {
+				console.log("TargetAngle Source:", newAngle)
+				obj.enqueueRotation(newAngle);
+			}
+		});
 	}
 	if (!input.left()) keyHeld.left = false
+
+		/*Input Right*/
 
 	if (input.right() && !keyHeld.right) {
 		keyHeld.right = true
 		menuState.lastDirection = "right"
-		menuPosition  = (menuPosition + 1) % 4
+		menuState.cachedPositions[idx]  = (menuPosition + 1) % 4
+
+		const newAngle = (2 * Math.PI / battleMenuValues.length) * menuState.cachedPositions[idx];
+
+		activeObjects.forEach(obj => {
+			if (obj.type === "menu" && obj.characterIdx === idx) {
+				obj.enqueueRotation(newAngle);
+			}
+		});
 	}
 	if (!input.right()) keyHeld.right = false
+
+		/*Input Confirm, Save Selection and progress Active Character. Change Game State if Last Active Character accounted for*/
 
 	if (input.confirm() && !keyHeld.confirm) {
 		keyHeld.confirm = true
@@ -225,6 +252,8 @@ function handleMenuInput() {
 		}
 	}
 	if (!input.confirm()) keyHeld.confirm = false
+
+		/*Input Cancel*/
 
 	if (input.cancel() && !keyHeld.cancel) {
 		keyHeld.cancel = true
