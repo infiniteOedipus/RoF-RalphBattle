@@ -10,11 +10,14 @@ const menuState = {
 
 
 function runNextCharacterUI() {
-	const char = battleParticipants[menuState.activeCharacter]
+	const idx = menuState.activeCharacter
+	const char = battleParticipants[idx]
 	const position = menuPositions[char]
-	menuState.cachedPositions[menuState.activeCharacter] = 0
+
+	menuState.cachedPositions[idx] ??= 0 //if no cache, set to zero
 	activeObjects.push(new popupUIOrigin(char, position, (ui) => {
 		createPopupButtons(ui)
+		menuState.menuLoaded[idx] = true
 		menuState.lockedControls = false
 	}
 	))
@@ -37,11 +40,11 @@ function popupUIOrigin(charName, positionData, onPositioned) {
 
 	this.motionScript = [
 		{type: "generator", action: linearMotion(this, "pathX", "pathY", positionData.startX, positionData.startY, positionData.endX, positionData.endY, 0.8, 0, "tOverflow")},
-		{type: "generator", action: sinMotion(this, "modY", 1, 10, 0, "forever", 0, null)}
+		{type: "generator", action: sinMotion(this, "modY", 3, 6, 0, "forever", 0, null)}
 	]
 
 	this.motionState = {
-		step: 0,
+		step:  0,
 		currentGenerator: null
 	}
 
@@ -78,20 +81,19 @@ function createPopupButtons(popupUI) {
 
 	for (let i = 0; i < buttonMax; i++) {
 		activeObjects.push(new popupBattleButton(i, buttonMax, originX, originY, characterIdx))
-		
 	}
 }
 
 function popupBattleButton(i, buttonMax, originX, originY, characterIdx){
 	this.type = "menu"
 
-	this.character         = battleParticipants[menuState.activeCharacter]
+	this.character         = battleParticipants[characterIdx]
 	this.characterIdx      = characterIdx
-	this.sprite            = getSprite("souls", `soul_${this.character}`)
+	this.sprite            = getSprite("ui", `ui_button_${this.character}_${i}`)
 	this.positionIndex     = i
 
 	this.deltaAngle = 2 * Math.PI / buttonMax       //Generic Angular Diferential between buttons. Should be equal across all buttons
-	this.modAngle = i * this.deltaAngle 	        //Spaces the buttons based on their position index
+	this.modAngle = -i * this.deltaAngle + Math.PI  //Spaces the buttons based on their position index
 	this.baseAngle = -Math.PI                       //The angle of the button at index 0. Should be equal across all buttons. Any animation should be performed on this.
 	this.realAngle = this.modAngle + this.baseAngle //final calculated angle of the button. Sum of Angle of Button0 and the deltaAngle*index. Only should be touched by final calculations in update function.
 
@@ -101,63 +103,69 @@ function popupBattleButton(i, buttonMax, originX, originY, characterIdx){
 	this.x = originX + Math.sin(this.realAngle) * this.radius
 
 	this.scale = Math.cos(this.realAngle) * 0.1 + 0.9
-	this.scalex = 2
-	this.scaley = 2
+	this.scalex = 1
+	this.scaley = 1
 	this.opacity = 0
 
 	this.openSpin = function* () {
+		const duration = 0.6
 		let t = 0;
-		const duration = 1
+		let start = (2 * Math.PI / battleMenuValues.length) * menuState.cachedPositions[menuState.activeCharacter] - Math.PI
+		let end = (2 * Math.PI / battleMenuValues.length) * menuState.cachedPositions[menuState.activeCharacter]
+		let delta = end - start
 		while (t < duration) {
 			const progress = t / duration
 			this.radius = 60 * progress;
-			this.baseAngle = -Math.PI + Math.PI * progress
+			this.baseAngle = start + delta * progress
 			this.opacity = Math.min(progress / 0.8, 1)
 			t += yield;
 		}
 		this.radius = 60
-		this.baseAngle = 0
+		this.baseAngle = end
 		this.opacity = 1
 	}
 
-	this.turnTo = function* (targetAngle) {
-		console.log("turning function subroutine started")
+	this.turnTo = function* (targetAngle, direction) {
 		const duration = 0.125
 		let t = 0
-		let start = this.baseAngle
-		let dir = (targetAngle - start) / Math.abs(targetAngle - start)
-		let delta = dir * ((Math.abs(targetAngle - start) - 0.0001) % (this.deltaAngle)) + 0.0001;
-		console.log("baseAngle:",this.baseAngle, "targetAngle:", targetAngle)
+		let start = this.baseAngle ?? 0
+		let end = targetAngle
+		if (start > end && direction === "right") end += 2 * Math.PI
+		if (start < end && direction === "left") start += 2 * Math.PI
+		let delta = end - start
+
 		while (t < duration) {
-			const p = t / duration;
-			this.baseAngle = start + delta * p;
+			const progress = t / duration;
+			this.baseAngle = start + delta * progress;
 			t += yield;
 		}
-		console.log("turning function subroutine ended")
 		this.baseAngle = targetAngle;
-		console.log(this.baseAngle)
 	}
 
 	this.closeSpin = function* () {
 		let t = 0;
-		const duration = 1
+		const duration = 0.6
 
 		let startingAngle = this.baseAngle
 		while (t < duration) {
 			const progress = t / duration
 			this.radius = 60 - 60 * progress;
 			this.baseAngle = startingAngle + Math.PI * progress
-			this.opacity = Math.min(progress / 0.8, 1)
+			this.opacity = 1 - progress
 			t += yield;
 		}
 		this.radius = 0
 		this.baseAngle = startingAngle + Math.PI
 		this.opacity = 0
+		this.setForRemoval = true
 	}
 
-	this.enqueueRotation = (targetAngle) => {
-		console.log("enqueue targetAngle:", targetAngle)
-		this.motionScript.push({type: "turnTo", action: this.turnTo(targetAngle)})
+	this.enqueueRotation = (targetAngle, direction) => {
+		this.motionScript.push({type: "turnTo", action: this.turnTo(targetAngle, direction)})
+	}
+
+	this.enqueueSpinout = () => {
+		this.motionScript.push({type: "closingSpin", action: this.closeSpin()})
 	}
 
 	this.motionScript = [
@@ -183,83 +191,106 @@ function popupBattleButton(i, buttonMax, originX, originY, characterIdx){
 
 				this.motionState.step++
 				this.motionState.currentGenerator = null
-				console.log(this.motionState.step)
 			}
 		}
 
 		this.realAngle = this.modAngle + this.baseAngle
 		this.y = originY - Math.cos(this.realAngle) * this.radius / 3
 		this.x = originX + Math.sin(this.realAngle) * this.radius
-		this.scale = (Math.cos(this.realAngle + Math.PI) * 0.2 + 0.8) * 2
+		this.scale = (Math.cos(this.realAngle + Math.PI) * 0.2 + 0.8) * 1
 		this.scalex = this.scale
 		this.scaley = this.scale
 	}
 }
 
+//Beginning of New Code
+
 function handleMenuInput() {
+	if (menuState.lockedControls === true) return;
+
+	if (input.left() && !keyHeld.left) return handleLeftInput()
+		if (!input.left()) keyHeld.left = false
+
+	if (input.right() && !keyHeld.right) return handleRightInput()
+		if (!input.right()) keyHeld.right = false
+
+	if (input.confirm() && !keyHeld.confirm) return handleConfirmInput()
+		if (!input.confirm()) keyHeld.confirm = false
+
+	if (input.cancel() && !keyHeld.cancel) return handleCancelInput()
+		if (!input.cancel()) keyHeld.cancel = false
+
+	if (input.debug() && !keyHeld.debug) return handleDebugInput()
+		if (!input.debug()) keyHeld.debug = false
+}
+
+function handleLeftInput(){
 	const idx = menuState.activeCharacter
-	let menuPosition = menuState.cachedPositions[idx];
-
-	if (menuState.lockedControls === true) return
-
-		/*Input left*/
-
-	if (input.left() && !keyHeld.left) {
-		keyHeld.left = true
-		menuState.lastDirection = "left"
-		menuState.cachedPositions[idx] = (menuPosition + 3) % 4
-
-		const newAngle = (2 * Math.PI / battleMenuValues.length) * menuState.cachedPositions[idx];
-		console.log("menuValues length:", battleMenuValues.length, "menuState cache index:", menuState.cachedPositions[idx])
-		activeObjects.forEach(obj => {
-			if (obj.type === "menu" && obj.characterIdx === idx) {
-				console.log("TargetAngle Source:", newAngle)
-				obj.enqueueRotation(newAngle);
-			}
-		});
-	}
-	if (!input.left()) keyHeld.left = false
-
-		/*Input Right*/
-
-	if (input.right() && !keyHeld.right) {
-		keyHeld.right = true
-		menuState.lastDirection = "right"
-		menuState.cachedPositions[idx]  = (menuPosition + 1) % 4
-
-		const newAngle = (2 * Math.PI / battleMenuValues.length) * menuState.cachedPositions[idx];
-
-		activeObjects.forEach(obj => {
-			if (obj.type === "menu" && obj.characterIdx === idx) {
-				obj.enqueueRotation(newAngle);
-			}
-		});
-	}
-	if (!input.right()) keyHeld.right = false
-
-		/*Input Confirm, Save Selection and progress Active Character. Change Game State if Last Active Character accounted for*/
-
-	if (input.confirm() && !keyHeld.confirm) {
-		keyHeld.confirm = true
-		menuState.lockedControls = true
-
-		//Add code to save menu Selection later
-
-		menuState.activeCharacter++
-		if (menuState.activeCharacter < battleParticipants.length){
-			runNextCharacterUI()
-		} else {
-			changeGameState(gameState.Attack)
+	let menuPosition = menuState.cachedPositions[idx]
+	keyHeld.left = true
+	menuState.lastDirection = "left"
+	menuState.cachedPositions[idx] = (menuPosition + 3) % 4
+	const newAngle = (2 * Math.PI / battleMenuValues.length) * menuState.cachedPositions[idx]
+	const direction = menuState.lastDirection
+	activeObjects.forEach(obj => {
+		if (obj.type === "menu" && obj.characterIdx === idx) {
+			obj.enqueueRotation(newAngle, direction)
 		}
+	});
+}
+
+function handleRightInput(){
+	const idx = menuState.activeCharacter
+	let menuPosition = menuState.cachedPositions[idx]
+	keyHeld.right = true
+	menuState.lastDirection = "right"
+	menuState.cachedPositions[idx]  = (menuPosition + 1) % 4
+	const newAngle = (2 * Math.PI / battleMenuValues.length) * menuState.cachedPositions[idx]
+	const direction = menuState.lastDirection
+	activeObjects.forEach(obj => {
+		if (obj.type === "menu" && obj.characterIdx === idx) {
+			obj.enqueueRotation(newAngle, direction)
+		}
+	});
+}
+
+function handleConfirmInput(){
+	const idx = menuState.activeCharacter
+	let menuPosition = menuState.cachedPositions[idx]
+	keyHeld.confirm = true
+	menuState.lockedControls = true
+	//Add code to save menu Selection later
+	activeObjects.forEach(obj => {
+		if (obj.type === "menu" && obj.characterIdx === idx) {
+			obj.enqueueSpinout()
+		}
+	});
+	menuState.activeCharacter++
+	if (menuState.activeCharacter < battleParticipants.length){
+		runNextCharacterUI()
+	} else {
+		changeGameState(gameState.Attack)
 	}
-	if (!input.confirm()) keyHeld.confirm = false
+}
 
-		/*Input Cancel*/
-
-	if (input.cancel() && !keyHeld.cancel) {
-		keyHeld.cancel = true
+function handleCancelInput(){
+	const idx = menuState.activeCharacter
+	let menuPosition = menuState.cachedPositions[idx]
+	keyHeld.cancel = true
+	if (menuState.activeCharacter > 0) {
 		menuState.lockedControls = true
-		if (menuState.activeCharacter > 0) menuState.activeCharacter -= 1
+		activeObjects.forEach(obj => {
+			if (obj.type === "menu" && obj.characterIdx === idx) {
+				obj.enqueueSpinout()
+			}
+		})
+		menuState.activeCharacter -= 1
+		runNextCharacterUI()
 	}
-	if (!input.cancel()) keyHeld.cancel = false
+}
+
+function handleDebugInput(){
+	keyHeld.debug = true
+	console.log("Active Character:", menuState.activeCharacter, battleParticipants[menuState.activeCharacter])
+	console.log("Currently Selected Button:", menuState.cachedPositions[menuState.activeCharacter], battleMenuValues[menuState.cachedPositions[menuState.activeCharacter]].label)
 }

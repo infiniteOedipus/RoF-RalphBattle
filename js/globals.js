@@ -82,7 +82,8 @@ const input = {
 	up      : () => keys["ArrowUp"] || keys["w"] || keys["W"],
 	down    : () => keys["ArrowDown"] || keys["s"] || keys["S"],
 	confirm : () => keys["z"] || keys[" "] || keys["Z"],
-	cancel  : () => keys["x"] || keys["Shift"] || keys["X"]
+	cancel  : () => keys["x"] || keys["Shift"] || keys["X"],
+	debug   : () => keys["p"] || keys["P"]
 }
 //Initialize
 const initListeners = []
@@ -115,32 +116,6 @@ function interval(time, dt, interval, delay){
 }
 
 //generic animation functions
-
-/*function linearMotion(obj, dt, xStart, yStart, xEnd, yEnd, speedTime, travel) {
-	const deltaX = xEnd - xStart
-	const xDir = deltaX === 0 ? 1 : deltaX / Math.abs(deltaX)
-	const deltaY = yEnd - yStart
-	const yDir = deltaY === 0 ? 1 : deltaY / Math.abs(deltaY)
-	let dx = null
-	let dy = null
-	switch(travel ?? "duration") {
-		case "duration":
-			dx = deltaX / speedTime
-			dy = deltaY / speedTime
-			break
-		case "speed": 
-			const dHyp = Math.sqrt(deltaX**2 + deltaY**2)
-			dx = deltaX * speedTime / dHyp
-			dy = deltaY * speedTime / dHyp
-			break
-		default: console.warn(`Unknown motion type "${travel}", defaulting to duration.`);
-	}
-
-	if ((obj.x + dx * dt) * xDir < xEnd * xDir) {obj.x += dx * dt} else {obj.x = xEnd}
-	if ((obj.y + dy * dt) * yDir < yEnd * yDir) {obj.y += dy * dt} else {obj.y = yEnd}
-
-	return obj.x === xEnd && obj.y === yEnd
-}*/
 
 function* linearMotion(obj, xProp, yProp, x1, y1, x2, y2, duration, tHanded = 0, tPassover = null, endCondition = () => false) {
 	let t = tHanded ?? 0
