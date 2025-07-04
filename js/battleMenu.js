@@ -3,7 +3,7 @@ const menuState = {
 	activeCharacter: 0,
 	menuSelections: [],
 	cachedPositions: [],
-	lockedControls: true,
+	lockedControls: {lock: true, delay: 0},
 	menuLoaded: [],
 	lastDirection: "right"
 };
@@ -18,7 +18,7 @@ function runNextCharacterUI() {
 	activeObjects.push(new popupUIOrigin(char, position, (ui) => {
 		createPopupButtons(ui)
 		menuState.menuLoaded[idx] = true
-		menuState.lockedControls = false
+		//menuState.lockedControls.lock = false
 	}
 	))
 }
@@ -186,7 +186,7 @@ function popupBattleButton(i, buttonMax, originX, originY, characterIdx){
 			const { done } = this.motionState.currentGenerator.next(dt)
 			if (done) {
 				if (this.motionState.step === 0) {
-					menuState.lockedControls = false
+					menuState.lockedControls.lock = false
 				}
 
 				this.motionState.step++
@@ -206,7 +206,7 @@ function popupBattleButton(i, buttonMax, originX, originY, characterIdx){
 //Beginning of New Code
 
 function handleMenuInput() {
-	if (menuState.lockedControls === true) return;
+	if (menuState.lockedControls.lock === true) return;
 
 	if (input.left() && !keyHeld.left) return handleLeftInput()
 		if (!input.left()) keyHeld.left = false
@@ -258,7 +258,7 @@ function handleConfirmInput(){
 	const idx = menuState.activeCharacter
 	let menuPosition = menuState.cachedPositions[idx]
 	keyHeld.confirm = true
-	menuState.lockedControls = true
+	menuState.lockedControls.lock = true
 	//Add code to save menu Selection later
 	activeObjects.forEach(obj => {
 		if (obj.type === "menu" && obj.characterIdx === idx) {
@@ -278,7 +278,7 @@ function handleCancelInput(){
 	let menuPosition = menuState.cachedPositions[idx]
 	keyHeld.cancel = true
 	if (menuState.activeCharacter > 0) {
-		menuState.lockedControls = true
+		menuState.lockedControls.lock = true
 		activeObjects.forEach(obj => {
 			if (obj.type === "menu" && obj.characterIdx === idx) {
 				obj.enqueueSpinout()
