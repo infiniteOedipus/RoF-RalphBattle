@@ -5,7 +5,9 @@ const menuState = {
 	cachedPositions: [],
 	lockedControls: {lock: true, delay: 0},
 	menuLoaded: [],
-	lastDirection: "right"
+	lastDirection: "right",
+	activeSubmenu: false,
+	subMenuPosition: []
 };
 
 
@@ -15,7 +17,7 @@ function runNextCharacterUI() {
 	const position = menuPositions[char]
 
 	menuState.cachedPositions[idx] ??= 0 //if no cache, set to zero
-	activeObjects.push(new popupUIOrigin(char, position, (ui) => {
+	activeObjects.push(new popupUIOrigin(char, idx, position, (ui) => {
 		createPopupButtons(ui)
 		menuState.menuLoaded[idx] = true
 		//menuState.lockedControls.lock = false
@@ -23,51 +25,89 @@ function runNextCharacterUI() {
 	))
 }
 
-function popupUIOrigin(charName, positionData, onPositioned) {
+function popupUIOrigin(charName, idx, positionData, onPositioned) {
 	this.type              = "menu"
+	this.subtype           = "menu_origin"
 
-	//this.character         = battleParticipants[menuState.activeCharacter]
+	this.characterIdx      = idx
 	this.character         = charName
 	this.sprite            = getSprite("souls", `soul_${this.character}`)
 
-	this.pathX = positionData.startX
-	this.pathY = positionData.startY
+	this.pathX = !menuState.menuLoaded[idx] ? positionData.startX : positionData.endX
+	this.pathY = !menuState.menuLoaded[idx] ? positionData.startY : positionData.endY
 	this.modX  = 0
 	this.modY  = 0
 
 	this.x = this.pathX + this.modX
 	this.y = this.pathY + this.modY
+	this.opacity = 0
+	this.setForRemoval = false
+
+	this.fadeout = function* () {
+		const duration = 0.7
+		let t = 0;
+		while (t < duration) {
+			const progress = t / duration
+			this.opacity = 1 - progress
+			t += yield;
+		}
+		this.opacity = 0
+		this.setForRemoval = true
+	}
+
+		this.fadein = function* () {
+		const duration = 0.7
+		let t = 0;
+		while (t < duration) {
+			const progress = t / duration
+			this.opacity = progress
+			t += yield;
+		}
+		this.opacity = 1
+	}
+
+	this.enqueueFadeout = () => {
+		this.motionState.currentGenerators.push(this.fadeout())
+	}
+
+	this.enqueueSlideIn = () => {
+		this.motionScript.push({step: 0, type: "generator", action: linearMotion(this, "pathX", "pathY", positionData.startX, positionData.startY, positionData.endX, positionData.endY, 0.8, 0, "tOverflow")})
+	}
 
 	this.motionScript = [
-		{type: "generator", action: linearMotion(this, "pathX", "pathY", positionData.startX, positionData.startY, positionData.endX, positionData.endY, 0.8, 0, "tOverflow")},
-		{type: "generator", action: sinMotion(this, "modY", 3, 6, 0, "forever", 0, null)}
+		{step: 0, type: "fadein", action: this.fadein()},
+		{step: 1, type: "generator", action: sinMotion(this, "modY", 3, 6, 0, "forever", 0, null)}
 	]
 
 	this.motionState = {
 		step:  0,
-		currentGenerator: null
+		currentGenerators: []
 	}
 
 	this.onPositioned = (ui) => onPositioned?.(ui)
 
-	this.update = (dt) => {
-		if (!this.motionState.currentGenerator) {
-			this.motionState.currentGenerator = this.motionScript[this.motionState.step]?.action
-		}
+	if (!menuState.menuLoaded[idx]) this.enqueueSlideIn()
+	if (menuState.menuLoaded[idx]) this.onPositioned(this)
 
-		if (this.motionState.currentGenerator) {
-			const { done } = this.motionState.currentGenerator.next(dt)
-			if (done) {
-				if (this.motionState.step === 0) {
-					this.onPositioned(this)
-				}
-				this.motionState.step++
-				this.motionState.currentGenerator = null
-			}
+	this.update = (dt) => {
+
+		if (this.motionState.currentGenerators.length === 0 && this.motionScript.some((script) => script.step === this.motionState.step)) { //if no active scripts running and there is at least 1 script that can be run during the current step
+			this.motionState.currentGenerators = this.motionScript.filter((script) => script.step === this.motionState.step).map((script) => script.action) //add the action of each generator that matches the current step to the current generators
+		} 
+
+		this.motionState.currentGenerators = this.motionState.currentGenerators.filter(gen => {
+			const {done} = gen.next(dt)
+			return !done
+		})
+
+		if (this.motionState.currentGenerators.length === 0 && this.motionState.step === 0) {
+		 	if (!menuState.menuLoaded[idx]) this.onPositioned(this)//Once Menu Origin finishes its first animation, triggers a function to create the buttons
+			this.motionState.step++
 		}
 
 		this.x = this.pathX + this.modX
 		this.y = this.pathY + this.modY
+
 	} 
 }
 
@@ -86,6 +126,7 @@ function createPopupButtons(popupUI) {
 
 function popupBattleButton(i, buttonMax, originX, originY, characterIdx){
 	this.type = "menu"
+	this.subtype = "menu_button"
 
 	this.character         = battleParticipants[characterIdx]
 	this.characterIdx      = characterIdx
@@ -108,7 +149,7 @@ function popupBattleButton(i, buttonMax, originX, originY, characterIdx){
 	this.opacity = 0
 
 	this.openSpin = function* () {
-		const duration = 0.6
+		const duration = 0.3
 		let t = 0;
 		let start = (2 * Math.PI / battleMenuValues.length) * menuState.cachedPositions[menuState.activeCharacter] - Math.PI
 		let end = (2 * Math.PI / battleMenuValues.length) * menuState.cachedPositions[menuState.activeCharacter]
@@ -144,7 +185,7 @@ function popupBattleButton(i, buttonMax, originX, originY, characterIdx){
 
 	this.closeSpin = function* () {
 		let t = 0;
-		const duration = 0.6
+		const duration = 0.3
 
 		let startingAngle = this.baseAngle
 		while (t < duration) {
@@ -233,7 +274,7 @@ function handleLeftInput(){
 	const newAngle = (2 * Math.PI / battleMenuValues.length) * menuState.cachedPositions[idx]
 	const direction = menuState.lastDirection
 	activeObjects.forEach(obj => {
-		if (obj.type === "menu" && obj.characterIdx === idx) {
+		if (obj.subtype === "menu_button" && obj.characterIdx === idx) {
 			obj.enqueueRotation(newAngle, direction)
 		}
 	});
@@ -248,7 +289,7 @@ function handleRightInput(){
 	const newAngle = (2 * Math.PI / battleMenuValues.length) * menuState.cachedPositions[idx]
 	const direction = menuState.lastDirection
 	activeObjects.forEach(obj => {
-		if (obj.type === "menu" && obj.characterIdx === idx) {
+		if (obj.subtype === "menu_button" && obj.characterIdx === idx) {
 			obj.enqueueRotation(newAngle, direction)
 		}
 	});
@@ -259,18 +300,7 @@ function handleConfirmInput(){
 	let menuPosition = menuState.cachedPositions[idx]
 	keyHeld.confirm = true
 	menuState.lockedControls.lock = true
-	//Add code to save menu Selection later
-	activeObjects.forEach(obj => {
-		if (obj.type === "menu" && obj.characterIdx === idx) {
-			obj.enqueueSpinout()
-		}
-	});
-	menuState.activeCharacter++
-	if (menuState.activeCharacter < battleParticipants.length){
-		runNextCharacterUI()
-	} else {
-		changeGameState(gameState.Attack)
-	}
+	proccessMenuButton(idx, menuPosition)
 }
 
 function handleCancelInput(){
@@ -280,8 +310,11 @@ function handleCancelInput(){
 	if (menuState.activeCharacter > 0) {
 		menuState.lockedControls.lock = true
 		activeObjects.forEach(obj => {
-			if (obj.type === "menu" && obj.characterIdx === idx) {
+			if (obj.subtype === "menu_button" && obj.characterIdx === idx) {
 				obj.enqueueSpinout()
+			}
+			if (obj.subtype === "menu_origin" && obj.characterIdx === idx) {
+				obj.enqueueFadeout()
 			}
 		})
 		menuState.activeCharacter -= 1
@@ -293,4 +326,39 @@ function handleDebugInput(){
 	keyHeld.debug = true
 	console.log("Active Character:", menuState.activeCharacter, battleParticipants[menuState.activeCharacter])
 	console.log("Currently Selected Button:", menuState.cachedPositions[menuState.activeCharacter], battleMenuValues[menuState.cachedPositions[menuState.activeCharacter]].label)
+}
+
+function proccessMenuButton(idx, menuPosition) {
+	if(!battleMenuValues[menuPosition].submenu) {
+		endMainMenu(idx, menuPosition)
+	}
+	if(battleMenuValues[menuPosition].submenu) {
+		menuState.activeSubmenu = true
+		menuState.subMenuPosition = [0,0]
+		createSubMenu()
+	}
+}
+
+function endMainMenu(idx, menuPosition) {
+	activeObjects.forEach(obj => {
+		if (obj.subtype === "menu_button" && obj.characterIdx === idx) {
+			obj.enqueueSpinout()
+		}
+		if (obj.subtype === "menu_origin" && obj.characterIdx === idx) {
+				obj.enqueueFadeout()
+		}
+	});
+	menuState.activeCharacter++
+	if (menuState.activeCharacter < battleParticipants.length){
+		runNextCharacterUI()
+	} else {
+		changeGameState(gameState.Attack)
+	}
+}
+
+function createSubMenu() {
+	//I hate everything
+	//create submenu body
+	//create buttons for each selection in submenu
+	//log legal submenu positions.
 }

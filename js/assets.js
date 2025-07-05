@@ -37,10 +37,10 @@
     ],
     ui: [{ // Zeaques Attack
             name: "ui_button_zeaque_0",
-            src: "https://file.garden/Z49oqnj5okOfzefL/Battle/ui_button_zeaque_0.png"
+            src: "https://file.garden/Z49oqnj5okOfzefL/Battle/ui_button_zeaque_00.png"
         }, { // Zeaques Item
             name: "ui_button_zeaque_1",
-            src: "https://file.garden/Z49oqnj5okOfzefL/Battle/ui_button_zeaque_1.png"
+            src: "https://file.garden/Z49oqnj5okOfzefL/Battle/ui_button_zeaque_01.png"
         }, { // Zeaques Defend
             name: "ui_button_zeaque_2",
             src: "https://file.garden/Z49oqnj5okOfzefL/Battle/ui_button_zeaque_2.png"
